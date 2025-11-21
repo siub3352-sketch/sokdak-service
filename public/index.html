@@ -1,36 +1,42 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>속닥속닥</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Study Forum</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <h1 class="title">속닥속닥</h1>
+  <div class="app-wrap">
+    <header>
+      <div>
+        <div class="logo-pill">익명 고민 공감</div>
+        <h1>속닥속닥</h1>
+        <p>고민많은 사람들를 위한 귀엽고 안전한 고민 공유 공간 💭</p>
+      </div>
+      <div class="muted">
+        모든 활동은 <strong>완전 익명</strong>이에요.<br />
+        랜덤 닉네임으로만 서로를 기억해요 ✨
+      </div>
+    </header>
 
-  <div class="container">
-    <form id="postForm">
-      <input id="title" placeholder="제목을 입력하세요" required />
-      <textarea id="content" placeholder="내용을 입력하세요" required></textarea>
-      <input id="tags" placeholder="태그 (예: 친구,고민)" />
-      <input id="password" placeholder="4자리 비밀번호" required />
-      <label class="premium-check">
-        <input type="checkbox" id="isPremium" />
-        프리미엄
-      </label>
-      <button id="submitBtn" type="submit">작성 완료</button>
+    <div class="layout">
+      <!-- 왼쪽: 정렬/필터 -->
+      <section class="card">
+        <div class="card-title">정렬 · 태그 필터</div>
+        
+        <div class="switch-box">
+            <label>프리미엄 여부</label>
+            <input type="checkbox" id="is-premium">
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn">등록</button>
     </form>
 
-    <div id="listInfo" class="list-info"></div>
-    <div id="postList"></div>
-  </div>
+    <h2 class="list-title">📄 게시글 목록</h2>
+    <div id="post-list"></div>
 
-  <!-- Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="app.js"></script>
 
-  <!-- App Logic -->
-  <script src="app.js"></script>
 </body>
 </html>
