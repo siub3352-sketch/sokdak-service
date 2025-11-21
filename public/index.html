@@ -1,89 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>속닥속닥 - 익명 고민 공감 서비스</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Study Forum</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-wrap">
-    <header>
-      <div>
-        <div class="logo-pill">익명 고민 공감</div>
-        <h1>속닥속닥</h1>
-        <p>중·고등학생과 20대를 위한 귀엽고 안전한 고민 공유 공간 💭</p>
-      </div>
-      <div class="muted">
-        모든 활동은 <strong>완전 익명</strong>이에요.<br />
-        랜덤 닉네임으로만 서로를 기억해요 ✨
-      </div>
-    </header>
 
-    <div class="layout">
-      <!-- 왼쪽: 정렬/필터 -->
-      <section class="card">
-        <div class="card-title">정렬 · 태그 필터</div>
+    <h1 class="title">📚 Study Forum</h1>
 
-        <div class="field">
-          <label>정렬 기준</label>
-          <select id="sortSelect">
-            <option value="latest">최신순</option>
-            <option value="popular">인기순 (공감 수)</option>
-          </select>
+    <!-- 글 작성 폼 -->
+    <form id="post-form" class="write-box">
+        <h2>글 작성하기</h2>
+
+        <input id="title" class="input" placeholder="제목을 입력하세요">
+        <textarea id="content" class="textarea" placeholder="내용을 입력하세요"></textarea>
+        <input id="tags" class="input" placeholder="태그(쉼표 , 로 구분)">
+        <input id="password" type="password" class="input" placeholder="비밀번호 설정">
+        
+        <div class="switch-box">
+            <label>프리미엄 여부</label>
+            <input type="checkbox" id="is-premium">
         </div>
 
-        <div class="field">
-          <label>태그 필터</label>
-          <div id="tagFilterList" class="tag-list"></div>
-          <div class="helper-text">글 작성 시 태그를 적어두면 여기에서 필터링할 수 있어요.</div>
-        </div>
-      </section>
+        <button type="submit" id="submit-btn" class="btn">등록</button>
+    </form>
 
-      <!-- 오른쪽: 글 작성 + 목록 -->
-      <section class="card">
-        <div class="card-title">고민 작성하기</div>
+    <h2 class="list-title">📄 게시글 목록</h2>
+    <div id="post-list"></div>
 
-        <form id="postForm">
-          <div class="field">
-            <label for="title">제목</label>
-            <input id="title" type="text" required />
-          </div>
-          <div class="field">
-            <label for="content">내용</label>
-            <textarea id="content" placeholder="어떤 고민인지 자세히 적어주세요."></textarea>
-          </div>
-          <div class="field">
-            <label for="tags">태그 (쉼표로 구분)</label>
-            <input id="tags" type="text" placeholder="예) 친구, 시험, 진로" />
-          </div>
-          <div class="field">
-            <label for="password">수정/삭제용 비밀번호</label>
-            <input id="password" type="password" placeholder="4자리 이상" required />
-          </div>
-          <div class="field">
-            <label>
-              <input id="isPremium" type="checkbox" />
-              프리미엄 고민 (목록에서 강조 표시)
-            </label>
-          </div>
-          <div class="btn-row">
-            <button type="reset" class="btn-outline">초기화</button>
-            <button type="submit" class="btn-primary" id="submitBtn">작성 완료</button>
-          </div>
-        </form>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="app.js"></script>
 
-        <hr />
-
-        <div class="card-title">
-          고민 목록 <small id="listInfo">(0개)</small>
-        </div>
-        <div id="postList" class="post-list"></div>
-      </section>
-    </div>
-  </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
 </body>
 </html>
