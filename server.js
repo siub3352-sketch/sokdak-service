@@ -1,6 +1,7 @@
+// server.js - Supabase 버전
 const express = require("express");
 const path = require("path");
-const fs = require("fs");
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -8,142 +9,147 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// === JSON DB 폴더 및 파일 생성 ===
-const dbDir = path.join(__dirname, "database");
-const postsFile = path.join(dbDir, "posts.json");
-const commentsFile = path.join(dbDir, "comments.json");
+// ---- Supabase 연결 ----
+const SUPABASE_URL = "https://effnciiebondujprjhio.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZm5jaWllYm9uZHVqcHJqaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzQ5MDYsImV4cCI6MjA3OTMxMDkwNn0.abm_hxGYDTsZjP-5MT93IBo_HoIgHQANJj1PMsKkh3c";
 
-// 폴더 자동 생성
-if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 파일 자동 생성 + 비어있을 때 자동 복구
-const ensureFile = (file) => {
-  if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, "[]");
-  } else {
-    const txt = fs.readFileSync(file, "utf8").trim();
-    if (!txt) fs.writeFileSync(file, "[]");
-    try {
-      JSON.parse(txt);
-    } catch {
-      fs.writeFileSync(file, "[]");
-    }
-  }
-};
+// ========================================================
+//                     API ENDPOINTS
+// ========================================================
 
-ensureFile(postsFile);
-ensureFile(commentsFile);
+// 📌 1) 모든 글 조회
+app.get("/posts", async (req, res) => {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-const readJSON = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
-const writeJSON = (file, data) =>
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
-
-// === API ===
-
-// 글 목록
-app.get("/posts", (req, res) => {
-  const posts = readJSON(postsFile).sort((a, b) => b.id - a.id);
-  res.json(posts);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
 });
 
-// 글 작성
-app.post("/posts", (req, res) => {
-  const { title, content, tags, password, nickname } = req.body;
-  const posts = readJSON(postsFile);
+// 📌 2) 글 작성
+app.post("/posts", async (req, res) => {
+  const { title, content, tag, password, nickname, is_premium } = req.body;
 
-  const newPost = {
-    id: Date.now(),
-    title,
-    content,
-    tags,
-    password,
-    nickname,
-    created_at: Date.now(),
-    likes: 0
-  };
+  const { data, error } = await supabase.from("posts").insert([
+    {
+      title,
+      content,
+      tag,
+      password,
+      nickname,
+      is_premium,
+    },
+  ]).select();
 
-  posts.push(newPost);
-  writeJSON(postsFile, posts);
-
-  res.json({ success: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data[0]);
 });
 
-// 글 수정
-app.post("/edit", (req, res) => {
-  const { id, title, content, tags, password } = req.body;
-  const posts = readJSON(postsFile);
+// 📌 3) 글 삭제
+app.delete("/posts/:id", async (req, res) => {
+  const postId = req.params.id;
+  const { password } = req.body;
 
-  const post = posts.find((p) => p.id == id);
-  if (!post) return res.json({ success: false, message: "존재하지 않음" });
+  // 비밀번호 확인
+  const { data: post } = await supabase
+    .from("posts")
+    .select("password")
+    .eq("id", postId)
+    .single();
 
+  if (!post) return res.status(404).json({ error: "글을 찾을 수 없습니다." });
   if (post.password !== password)
-    return res.json({ success: false, message: "비밀번호 틀림" });
+    return res.status(403).json({ error: "비밀번호가 일치하지 않습니다." });
 
-  post.title = title;
-  post.content = content;
-  post.tags = tags;
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
 
-  writeJSON(postsFile, posts);
-  res.json({ success: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "삭제 완료" });
 });
 
-// 글 삭제
-app.post("/delete", (req, res) => {
-  const { id, password } = req.body;
+// 📌 4) 글 수정
+app.put("/posts/:id", async (req, res) => {
+  const postId = req.params.id;
+  const { title, content, tag, password } = req.body;
 
-  let posts = readJSON(postsFile);
-  const post = posts.find((p) => p.id == id);
+  const { data: post } = await supabase
+    .from("posts")
+    .select("password")
+    .eq("id", postId)
+    .single();
 
-  if (!post) return res.json({ success: false, message: "존재하지 않음" });
+  if (!post) return res.status(404).json({ error: "글을 찾을 수 없습니다." });
   if (post.password !== password)
-    return res.json({ success: false, message: "비밀번호 틀림" });
+    return res.status(403).json({ error: "비밀번호가 일치하지 않습니다." });
 
-  posts = posts.filter((p) => p.id != id);
-  writeJSON(postsFile, posts);
+  const { data, error } = await supabase
+    .from("posts")
+    .update({ title, content, tag })
+    .eq("id", postId)
+    .select();
 
-  res.json({ success: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data[0]);
 });
 
-// 좋아요
-app.post("/like", (req, res) => {
-  const { id } = req.body;
-  const posts = readJSON(postsFile);
+// 📌 5) 댓글 작성
+app.post("/comments", async (req, res) => {
+  const { post_id, content, nickname } = req.body;
 
-  const post = posts.find((p) => p.id == id);
-  if (!post) return res.json({ success: false });
+  const { data, error } = await supabase.from("comments").insert([
+    { post_id, content, nickname },
+  ]).select();
 
-  post.likes++;
-  writeJSON(postsFile, posts);
-
-  res.json({ success: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data[0]);
 });
 
-// 댓글 작성
-app.post("/comment", (req, res) => {
-  const { post_id, comment, nickname } = req.body;
-  const comments = readJSON(commentsFile);
+// 📌 6) 게시글 댓글 불러오기
+app.get("/comments/:postId", async (req, res) => {
+  const postId = req.params.postId;
 
-  comments.push({
-    id: Date.now(),
-    post_id,
-    comment,
-    nickname,
-    created_at: Date.now()
-  });
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
 
-  writeJSON(commentsFile, comments);
-  res.json({ success: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
 });
 
-// 댓글 조회
-app.get("/comments/:id", (req, res) => {
-  const { id } = req.params;
-  const comments = readJSON(commentsFile).filter(
-    (c) => Number(c.post_id) === Number(id)
-  );
-  res.json(comments);
+// 📌 7) 좋아요 +1
+app.post("/like/:id", async (req, res) => {
+  const id = req.params.id;
+
+  // 현재 좋아요 개수 가져오기
+  const { data: post } = await supabase
+    .from("posts")
+    .select("likes")
+    .eq("id", id)
+    .single();
+
+  if (!post) return res.status(404).json({ error: "게시글 없음" });
+
+  const newLikes = (post.likes || 0) + 1;
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ likes: newLikes })
+    .eq("id", id);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json({ likes: newLikes });
 });
 
+// ========================================================
+//                     서버 실행
+// ========================================================
 app.listen(PORT, () => {
-  console.log("🚀 Server running on port " + PORT);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
