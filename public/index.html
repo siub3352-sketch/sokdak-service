@@ -1,93 +1,76 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>속닥속닥 - 익명 고민 공감 서비스</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>속닥속닥 - 익명 고민 공감 서비스</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<div class="app-wrap">
-
-  <header>
-    <div>
-      <div class="logo-pill">익명 고민 공감</div>
+  <div class="app-wrap">
+    <header>
+      <div class="badge">익명 고민 공감</div>
       <h1>속닥속닥</h1>
-      <p class="muted">중·고등학생과 20대를 위한 귀엽고 안전한 고민 공유 공간 💭</p>
-    </div>
-    <div class="muted">
-      모든 활동은 <strong>완전 익명</strong>이에요.<br>
-      랜덤 닉네임으로만 서로를 기억해요 ✨
-    </div>
-  </header>
+      <p class="subtitle">중·고등학생과 20대를 위한 귀엽고 안전한 고민 공유 공간 ✨</p>
+      <p class="notice">모든 활동은 <b>완전 익명</b>이에요.<br>랜덤 닉네임으로만 서로를 기억해요 ✨</p>
+    </header>
 
-  <div class="layout">
+    <div class="layout">
 
-    <!-- 왼쪽 정렬/태그 -->
-    <section class="card">
-      <div class="card-title">정렬 · 태그 필터</div>
+      <!-- 왼쪽: 정렬/태그 + 목록 -->
+      <section class="card left-box">
+        <div class="card-title">정렬 · 태그 필터</div>
 
-      <div class="field">
-        <label>정렬 기준</label>
+        <label class="filter-label">정렬 기준</label>
         <select id="sortSelect">
           <option value="latest">최신순</option>
           <option value="likes">공감순</option>
         </select>
-      </div>
 
-      <div class="field">
-        <label>태그 필터</label>
-        <div id="tagFilterList" class="tag-list"></div>
-      </div>
-    </section>
+        <div class="filter-box">
+          <label class="filter-label">태그 필터</label>
+          <p class="muted">글 작성 시 태그를 적어두면 여기에서 필터링할 수 있어요.</p>
+          <div id="tagFilterList"></div>
+        </div>
 
-    <!-- 오른쪽 글 작성 -->
-    <section class="card">
-      <div class="card-title">고민 작성하기</div>
+        <h3 class="list-title">고민 목록 <span id="listInfo">(0개)</span></h3>
+        <div id="postList"></div>
+      </section>
 
-      <form id="postForm">
+      <!-- 오른쪽: 글 작성 -->
+      <section class="card write-box">
+        <div class="card-title">고민 작성하기</div>
 
-        <div class="field">
+        <form id="postForm">
           <label>제목</label>
-          <input id="title" placeholder="[ 예: ] 마땅한..." />
-        </div>
+          <input id="titleInput" type="text" placeholder="[예: ] 마땅할…" />
 
-        <div class="field">
           <label>내용</label>
-          <textarea id="content" placeholder="어떤 고민인지 자세히 적어주세요."></textarea>
-        </div>
+          <textarea id="contentInput" placeholder="어떤 고민인지 자세히 적어주세요."></textarea>
 
-        <div class="field">
           <label>태그 (쉼표로 구분)</label>
-          <input id="tags" placeholder="예) 친구, 시험, 진로" />
-        </div>
+          <input id="tagsInput" type="text" placeholder="예) 친구, 시험, 진로" />
 
-        <div class="field">
           <label>수정/삭제용 비밀번호</label>
-          <input type="password" id="password" placeholder="4자리 이상" />
-        </div>
+          <input id="passwordInput" type="password" placeholder="4자리 이상" />
 
-        <div class="field switch-box">
-          <label>프리미엄 고민 (목록에서 강조 표시)</label>
-          <input type="checkbox" id="isPremium" />
-        </div>
+          <label class="premium-row">
+            <input id="isPremiumInput" type="checkbox"> 프리미엄 고민 (목록에서 강조 표시)
+          </label>
 
-        <div class="btn-row">
-          <button type="reset" class="btn-outline">초기화</button>
-          <button type="submit" id="submitBtn" class="btn-primary">작성 완료</button>
-        </div>
-        
-      </form>
+          <div class="btn-row">
+            <button type="reset" class="btn secondary">초기화</button>
+            <button type="submit" id="submitBtn" class="btn primary">작성 완료</button>
+          </div>
+        </form>
+      </section>
 
-      <h2 class="list-title">📄 고민 목록 <span id="listInfo">(0개)</span></h2>
-      <div id="postList" class="post-list"></div>
-    </section>
+    </div>
+  </div>
 
-  </div> 
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="app.js"></script>
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

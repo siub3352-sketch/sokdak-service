@@ -1,86 +1,167 @@
+/* ===== 배경 ===== */
 body {
-  background: #ffe6f1;
-  font-family: "Pretendard", sans-serif;
   margin: 0;
-  padding: 20px;
-  color: #444;
+  padding: 0;
+  font-family: 'Pretendard', sans-serif;
+  background: linear-gradient(to bottom, #ffe6f2, #ffd6e8 40%, #ffe6f2);
+  color: #333;
 }
 
-.title {
+/* ===== 전체 컨테이너 ===== */
+.app-wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* ===== 헤더 ===== */
+header {
   text-align: center;
-  color: #ff4d94;
-  font-size: 36px;
-  font-weight: 900;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-.container {
-  max-width: 500px;
-  margin: auto;
+.badge {
+  display: inline-block;
+  background: #ffb6d9;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: white;
+  margin-bottom: 10px;
 }
 
-input, textarea {
+h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #d60077;
+}
+
+.subtitle {
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+.notice {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* ===== 2단 레이아웃 ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 30px;
+}
+
+/* ===== 카드 박스 ===== */
+.card {
+  background: white;
+  padding: 22px 24px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: #d60077;
+}
+
+/* ===== 입력 요소 ===== */
+input, select, textarea {
   width: 100%;
   padding: 12px;
-  margin-top: 8px;
+  border: 1px solid #f7b6d4;
   border-radius: 10px;
-  border: 1px solid #ffb3d9;
-  font-size: 15px;
+  font-size: 14px;
+  margin-bottom: 14px;
+  background: #fff5fa;
+  outline: none;
 }
 
 textarea {
-  height: 120px;
+  height: 150px;
   resize: none;
 }
 
-button {
-  margin-top: 12px;
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
+.filter-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.muted {
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+#tagFilterList button {
+  margin: 4px 4px 0 0;
+}
+
+/* ===== 버튼 ===== */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn {
+  width: 50%;
+  padding: 12px 0;
+  border-radius: 10px;
   border: none;
-  background: #ff66aa;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
+  font-size: 15px;
   cursor: pointer;
 }
 
-button:hover {
-  background: #ff3388;
-}
-
-.post-card {
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(255, 150, 200, 0.2);
-}
-
-.post-card h3 {
-  margin: 0;
-  color: #ff2e85;
-}
-
-.premium-badge {
-  background: #ff99cc;
+.btn.primary {
+  background: #ff66b7;
   color: white;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  margin-left: 6px;
 }
 
-.list-info {
+.btn.primary:hover {
+  background: #ff449e;
+}
+
+.btn.secondary {
+  background: #ffd0e6;
+}
+
+.btn.secondary:hover {
+  background: #ffbcd9;
+}
+
+/* ===== 목록 ===== */
+.post-card {
+  background: #fff0f7;
+  border: 1px solid #ffcae3;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.list-title {
   margin-top: 20px;
-  text-align: right;
-  font-size: 14px;
-  color: #666;
+  font-size: 17px;
+  font-weight: 600;
 }
 
-.post-meta {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #777;
+/* 태그 */
+.btn-tag {
+  background: #ffe0f0;
+  color: #b6005c;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 12px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.btn-tag.active {
+  background: #ff7cc6;
+  color: white;
 }
