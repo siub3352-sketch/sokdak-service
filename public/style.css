@@ -1,92 +1,86 @@
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f3f4f6;
-    padding: 20px;
-    margin: 0;
+  background: #ffe6f1;
+  font-family: "Pretendard", sans-serif;
+  margin: 0;
+  padding: 20px;
+  color: #444;
 }
 
 .title {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  color: #ff4d94;
+  font-size: 36px;
+  font-weight: 900;
+  margin-bottom: 20px;
 }
 
-.write-box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    margin-bottom: 32px;
+.container {
+  max-width: 500px;
+  margin: auto;
 }
 
-.input, .textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ffb3d9;
+  font-size: 15px;
 }
 
-.textarea {
-    height: 120px;
+textarea {
+  height: 120px;
+  resize: none;
 }
 
-.btn {
-    width: 100%;
-    background: #4c73ff;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 8px;
+button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #ff66aa;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.btn:hover {
-    background: #3a5ce0;
-}
-
-.list-title {
-    margin-bottom: 10px;
+button:hover {
+  background: #ff3388;
 }
 
 .post-card {
-    background: #fff;
-    padding: 16px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    margin-bottom: 12px;
-    cursor: pointer;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(255, 150, 200, 0.2);
+}
+
+.post-card h3 {
+  margin: 0;
+  color: #ff2e85;
+}
+
+.premium-badge {
+  background: #ff99cc;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.list-info {
+  margin-top: 20px;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
 }
 
 .post-meta {
-    color: #666;
-    font-size: 13px;
-    margin-bottom: 10px;
-}
-
-.post-tags span {
-    background: #eef2ff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    margin-right: 4px;
-    font-size: 12px;
-}
-
-.btn-small {
-    display: inline-block;
-    background: #eee;
-    padding: 6px 10px;
-    border-radius: 6px;
-    margin-right: 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-small:hover {
-    background: #ddd;
-}
-
-.switch-box {
-    margin: 8px 0;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #777;
 }

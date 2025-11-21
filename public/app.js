@@ -1,46 +1,46 @@
-// ===================================
-// Supabase 초기화
-// ===================================
-const client = supabase.createClient(
-  "https://jodamftrguxfcoqvxgcv.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvZGFtZnRyZ3V4ZmNvcXZ4Z2N2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxNTg0NjcsImV4cCI6MjA1MjczNDQ2N30.FbhKk1pvr2ZvRYOSS8N-Gbgghy2HBML5G8r_BLslx0s"
-);
+// ===============================
+// Supabase 연결
+// ===============================
+const SUPABASE_URL = "https://effnciiebondujprjhio.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZm5jaWllYm9uZHVqcHJqaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzQ5MDYsImV4cCI6MjA3OTMxMDkwNn0.abm_hxGYDTsZjP-5MT93IBo_HoIgHQANJj1PMsKkh3c";
 
-// ===================================
-// DOM 요소 가져오기
-// ===================================
-const postListEl = document.getElementById("post-list");
-const postForm = document.getElementById("post-form");
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const formTitle = document.getElementById("title");
-const formContent = document.getElementById("content");
-const formTags = document.getElementById("tags");
-const formPassword = document.getElementById("password");
-const formPremium = document.getElementById("is-premium");
-
-let editingPost = null;
+// ===============================
+// 전역 상태
+// ===============================
 let posts = [];
 
-// ===================================
-// 닉네임 랜덤 생성
-// ===================================
-function randomNickname() {
-  const adj = ["빠른", "용감한", "다정한", "차분한", "똑똑한"];
-  const animal = ["호랑이", "여우", "늑대", "곰", "사자", "판다"];
-  return adj[Math.floor(Math.random() * adj.length)] + " " + animal[Math.floor(Math.random() * animal.length)];
+// ===============================
+// 시간 포맷
+// ===============================
+function timeToKoreanString(ts) {
+  const diff = Date.now() - new Date(ts).getTime();
+  const sec = Math.floor(diff / 1000);
+  if (sec < 60) return "방금 전";
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}일 전`;
+
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
 }
 
-// ===================================
-// 게시글 불러오기
-// ===================================
+// ===============================
+// 글 목록 불러오기
+// ===============================
 async function loadPosts() {
-  const { data, error } = await client
+  const { data, error } = await supabaseClient
     .from("posts")
     .select("*")
-    .order("id", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
-    alert("로드 오류: " + error.message);
+    alert("글 불러오기 오류: " + error.message);
     return;
   }
 
@@ -48,31 +48,27 @@ async function loadPosts() {
   renderPosts();
 }
 
-// ===================================
-// 게시글 출력
-// ===================================
+// ===============================
+// 글 렌더링
+// ===============================
 function renderPosts() {
-  postListEl.innerHTML = "";
+  const postListEl = document.getElementById("postList");
+  const listInfoEl = document.getElementById("listInfo");
 
-  posts.forEach(post => {
+  postListEl.innerHTML = "";
+  listInfoEl.textContent = `(${posts.length}개)`;
+
+  posts.forEach((post) => {
     const card = document.createElement("div");
     card.className = "post-card";
 
-    const tagHTML = post.tags.map(t => `<span>${t}</span>`).join("");
-
     card.innerHTML = `
-      <h3>${post.title}</h3>
-      <div class="post-meta">작성자: ${post.nickname}</div>
-      <div class="post-tags">${tagHTML}</div>
-
-      <div style="margin-top:10px;">
-        <span class="btn-small" onclick="toggleDetail(this)">상세보기</span>
-        <span class="btn-small" onclick="startEditPost(${post.id})">수정</span>
-        <span class="btn-small" onclick="deletePost(${post.id})">삭제</span>
-      </div>
-
-      <div class="detail" style="display:none; margin-top:10px;">
-        ${post.content}
+      <h3>${post.title}
+        ${post.is_premium ? '<span class="premium-badge">프리미엄</span>' : ""}
+      </h3>
+      <div>${post.content}</div>
+      <div class="post-meta">
+        ${timeToKoreanString(post.created_at)} · 💗 ${post.likes}
       </div>
     `;
 
@@ -80,146 +76,48 @@ function renderPosts() {
   });
 }
 
-// ===================================
-// 상세보기 열기/닫기
-// ===================================
-function toggleDetail(btn) {
-  const card = btn.closest(".post-card");
-  const detail = card.querySelector(".detail");
-
-  detail.style.display = detail.style.display === "none" ? "block" : "none";
-}
-
-// ===================================
-// 글 작성 / 수정 제출
-// ===================================
-postForm.addEventListener("submit", async (e) => {
+// ===============================
+// 글 작성
+// ===============================
+document.getElementById("postForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const title = formTitle.value.trim();
-  const content = formContent.value.trim();
-  const tags = formTags.value.split(",").map(t => t.trim()).filter(t => t);
-  const password = formPassword.value.trim();
-  const isPremium = formPremium.checked;
+  const title = document.getElementById("title").value.trim();
+  const content = document.getElementById("content").value.trim();
+  const tags = document.getElementById("tags").value.trim().split(",");
+  const password = document.getElementById("password").value.trim();
+  const isPremium = document.getElementById("isPremium").checked;
 
-  if (!title || !content || !password) {
-    alert("제목/내용/비밀번호는 필수입니다.");
+  if (!title || !password) {
+    alert("제목/비밀번호를 입력하세요");
     return;
   }
 
-  // ------------------------------
-  // 수정 모드
-  // ------------------------------
-  if (editingPost !== null) {
-    const { data, error } = await client
-      .from("posts")
-      .update({
-        title,
-        content,
-        tags,
-        password,
-        is_premium: isPremium,
-      })
-      .eq("id", editingPost)
-      .select("*");  // ★ 최신 데이터 강제 반환
+  // 랜덤 닉네임
+  const nickname = "익명" + Math.floor(Math.random() * 9000 + 1000);
 
-    if (error) {
-      alert("수정 오류: " + error.message);
-      return;
-    }
-
-    alert("수정 완료!");
-    editingPost = null;
-    postForm.querySelector("button").textContent = "등록";
-
-  } else {
-    // ------------------------------
-    // 새 글 등록
-    // ------------------------------
-    const nickname = randomNickname();
-
-    const { error } = await client.from("posts").insert({
+  const { error } = await supabaseClient.from("posts").insert([
+    {
       title,
       content,
       tags,
       password,
       is_premium: isPremium,
-      nickname
-    });
+      nickname,
+    },
+  ]);
 
-    if (error) {
-      alert("등록 오류: " + error.message);
-      return;
-    }
-
-    alert("등록 완료!");
+  if (error) {
+    alert("등록 오류: " + error.message);
+    return;
   }
 
-  formTitle.value = "";
-  formContent.value = "";
-  formTags.value = "";
-  formPassword.value = "";
-  formPremium.checked = false;
-
+  alert("등록 완료!");
+  e.target.reset();
   loadPosts();
 });
 
-// ===================================
-// 글 수정 시작
-// ===================================
-function startEditPost(id) {
-  const post = posts.find(p => p.id === id);
-  if (!post) return;
-
-  const pw = prompt("수정 비밀번호:");
-  if (pw === null) return;
-  if (pw !== post.password) {
-    alert("비밀번호가 일치하지 않습니다.");
-    return;
-  }
-
-  editingPost = id;
-
-  formTitle.value = post.title;
-  formContent.value = post.content;
-  formTags.value = post.tags.join(", ");
-  formPassword.value = post.password;
-  formPremium.checked = post.is_premium;
-
-  postForm.querySelector("button").textContent = "수정 완료";
-}
-
-// ===================================
-// 글 삭제
-// ===================================
-async function deletePost(id) {
-  const post = posts.find(p => p.id === id);
-  if (!post) return;
-
-  const pw = prompt("삭제 비밀번호:");
-  if (pw === null) return;
-  if (pw !== post.password) {
-    alert("비밀번호가 일치하지 않습니다.");
-    return;
-  }
-
-  if (!confirm("정말 삭제하시겠습니까?")) return;
-
-  const { error } = await client
-    .from("posts")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    alert("삭제 오류: " + error.message);
-    return;
-  }
-
-  alert("삭제 완료!");
-  loadPosts();
-}
-
-// ===================================
+// ===============================
 // 초기 실행
-// ===================================
+// ===============================
 loadPosts();
