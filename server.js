@@ -13,9 +13,26 @@ const dbDir = path.join(__dirname, "database");
 const postsFile = path.join(dbDir, "posts.json");
 const commentsFile = path.join(dbDir, "comments.json");
 
+// 폴더 자동 생성
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir);
-if (!fs.existsSync(postsFile)) fs.writeFileSync(postsFile, "[]");
-if (!fs.existsSync(commentsFile)) fs.writeFileSync(commentsFile, "[]");
+
+// 파일 자동 생성 + 비어있을 때 자동 복구
+const ensureFile = (file) => {
+  if (!fs.existsSync(file)) {
+    fs.writeFileSync(file, "[]");
+  } else {
+    const txt = fs.readFileSync(file, "utf8").trim();
+    if (!txt) fs.writeFileSync(file, "[]");
+    try {
+      JSON.parse(txt);
+    } catch {
+      fs.writeFileSync(file, "[]");
+    }
+  }
+};
+
+ensureFile(postsFile);
+ensureFile(commentsFile);
 
 const readJSON = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 const writeJSON = (file, data) =>
