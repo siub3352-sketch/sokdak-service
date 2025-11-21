@@ -1,60 +1,72 @@
-// server.js
 const express = require("express");
 const path = require("path");
-const Database = require("better-sqlite3");
+const fs = require("fs");
 
-// ==== DB 연결 ====
-const db = new Database(path.join(__dirname, "sokdak.db"));
-
-// 게시판 테이블 생성
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    tags TEXT,
-    password TEXT NOT NULL,
-    nickname TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
-    likes INTEGER DEFAULT 0
-  )
-`).run();
-
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    post_id INTEGER NOT NULL,
-    comment TEXT NOT NULL,
-    nickname TEXT NOT NULL,
-    created_at INTEGER NOT NULL
-  )
-`).run();
-
-// ==== Express 서버 설정 ====
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ==== API ====
+// === JSON DB 폴더 및 파일 생성 ===
+const dbDir = path.join(__dirname, "database");
+const postsFile = path.join(dbDir, "posts.json");
+const commentsFile = path.join(dbDir, "comments.json");
 
-// 글 목록 조회
+if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir);
+if (!fs.existsSync(postsFile)) fs.writeFileSync(postsFile, "[]");
+if (!fs.existsSync(commentsFile)) fs.writeFileSync(commentsFile, "[]");
+
+const readJSON = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
+const writeJSON = (file, data) =>
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+
+// === API ===
+
+// 글 목록
 app.get("/posts", (req, res) => {
-  const rows = db.prepare("SELECT * FROM posts ORDER BY id DESC").all();
-  res.json(rows);
+  const posts = readJSON(postsFile).sort((a, b) => b.id - a.id);
+  res.json(posts);
 });
 
 // 글 작성
 app.post("/posts", (req, res) => {
   const { title, content, tags, password, nickname } = req.body;
+  const posts = readJSON(postsFile);
 
-  const stmt = db.prepare(`
-    INSERT INTO posts (title, content, tags, password, nickname, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
+  const newPost = {
+    id: Date.now(),
+    title,
+    content,
+    tags,
+    password,
+    nickname,
+    created_at: Date.now(),
+    likes: 0
+  };
 
-  stmt.run(title, content, tags, password, nickname, Date.now());
+  posts.push(newPost);
+  writeJSON(postsFile, posts);
+
+  res.json({ success: true });
+});
+
+// 글 수정
+app.post("/edit", (req, res) => {
+  const { id, title, content, tags, password } = req.body;
+  const posts = readJSON(postsFile);
+
+  const post = posts.find((p) => p.id == id);
+  if (!post) return res.json({ success: false, message: "존재하지 않음" });
+
+  if (post.password !== password)
+    return res.json({ success: false, message: "비밀번호 틀림" });
+
+  post.title = title;
+  post.content = content;
+  post.tags = tags;
+
+  writeJSON(postsFile, posts);
   res.json({ success: true });
 });
 
@@ -62,29 +74,15 @@ app.post("/posts", (req, res) => {
 app.post("/delete", (req, res) => {
   const { id, password } = req.body;
 
-  const post = db.prepare("SELECT * FROM posts WHERE id = ?").get(id);
+  let posts = readJSON(postsFile);
+  const post = posts.find((p) => p.id == id);
 
-  if (!post) return res.json({ success: false, message: "존재하지 않는 게시물" });
+  if (!post) return res.json({ success: false, message: "존재하지 않음" });
   if (post.password !== password)
-    return res.json({ success: false, message: "비밀번호 불일치" });
+    return res.json({ success: false, message: "비밀번호 틀림" });
 
-  db.prepare("DELETE FROM posts WHERE id = ?").run(id);
-  res.json({ success: true });
-});
-
-// 글 수정
-app.post("/edit", (req, res) => {
-  const { id, title, content, tags, password } = req.body;
-
-  const post = db.prepare("SELECT * FROM posts WHERE id = ?").get(id);
-
-  if (!post) return res.json({ success: false, message: "존재하지 않는 게시물" });
-  if (post.password !== password)
-    return res.json({ success: false, message: "비밀번호 불일치" });
-
-  db.prepare(`
-    UPDATE posts SET title=?, content=?, tags=? WHERE id=?
-  `).run(title, content, tags, id);
+  posts = posts.filter((p) => p.id != id);
+  writeJSON(postsFile, posts);
 
   res.json({ success: true });
 });
@@ -92,28 +90,43 @@ app.post("/edit", (req, res) => {
 // 좋아요
 app.post("/like", (req, res) => {
   const { id } = req.body;
-  db.prepare("UPDATE posts SET likes = likes + 1 WHERE id = ?").run(id);
+  const posts = readJSON(postsFile);
+
+  const post = posts.find((p) => p.id == id);
+  if (!post) return res.json({ success: false });
+
+  post.likes++;
+  writeJSON(postsFile, posts);
+
   res.json({ success: true });
 });
 
 // 댓글 작성
 app.post("/comment", (req, res) => {
   const { post_id, comment, nickname } = req.body;
+  const comments = readJSON(commentsFile);
 
-  db.prepare(`
-    INSERT INTO comments (post_id, comment, nickname, created_at)
-    VALUES (?, ?, ?, ?)
-  `).run(post_id, comment, nickname, Date.now());
+  comments.push({
+    id: Date.now(),
+    post_id,
+    comment,
+    nickname,
+    created_at: Date.now()
+  });
 
+  writeJSON(commentsFile, comments);
   res.json({ success: true });
 });
 
 // 댓글 조회
 app.get("/comments/:id", (req, res) => {
-  const rows = db.prepare("SELECT * FROM comments WHERE post_id = ? ORDER BY id").all(req.params.id);
-  res.json(rows);
+  const { id } = req.params;
+  const comments = readJSON(commentsFile).filter(
+    (c) => Number(c.post_id) === Number(id)
+  );
+  res.json(comments);
 });
 
 app.listen(PORT, () => {
-  console.log("🚀 Server running on port:", PORT);
+  console.log("🚀 Server running on port " + PORT);
 });
