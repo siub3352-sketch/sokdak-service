@@ -187,3 +187,85 @@ textarea {
   background: #ffd2ea;
   border-color: #ff9acb;
 }
+/* ============================================
+   📱 태블릿 (768px 이하) → 1단 구조
+============================================ */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+    gap: 20px;
+  }
+
+  body {
+    padding-top: 5px;
+  }
+
+  .header-wrap {
+    padding: 10px 20px;
+    flex-direction: column;
+    text-align: left;
+    gap: 10px;
+  }
+
+  .header-right {
+    align-self: flex-start;
+  }
+
+  .card {
+    padding: 18px;
+  }
+}
+
+/* ============================================
+   📱 스마트폰 (600px 이하)
+============================================ */
+@media (max-width: 600px) {
+
+  /* 글자 크기 줄이기 */
+  h1 {
+    font-size: 26px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* 버튼들 */
+  .btn-list {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .btn-comment {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* 댓글 카드 */
+  .comment-card {
+    padding: 8px;
+  }
+
+  /* 카드 간격 */
+  .post-card {
+    padding: 12px;
+  }
+
+  /* 전체 좌우 여백 축소 */
+  .layout {
+    padding: 0 12px;
+  }
+}
