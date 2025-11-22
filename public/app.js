@@ -182,7 +182,7 @@ async function toggleDetail(postId) {
     <div class="detail-body">${post.content || "(내용 없음)"}</div>
     <div class="comment-title">댓글 / 답변</div>
     <div class="comment-list"></div>
-    <textarea class="comment-input" placeholder="익명으로 따뜻한 한마디를 남겨주세요."></textarea>
+    <textarea class="comment-input" placeholder="#으로 태그를 구분하세요. 예시: #친구 #학교 #연애"></textarea>
     <button class="btn-primary comment-submit">댓글 남기기</button>
   `;
 
@@ -274,14 +274,23 @@ async function likePost(id) {
 }
 
 // =======================================================
-// 글 작성/수정
+// 글 작성/수정 (+ 태그 # 기반 파싱)
 // =======================================================
 postForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const title = titleInput.value.trim();
   const content = contentInput.value.trim();
-  const tags = tagsInput.value.split(",").map((t) => t.trim());
+
+  // -------------------------
+  //  # 해시태그 기반 파싱
+  // -------------------------
+  const rawTag = tagsInput.value;
+  const tags = rawTag
+    .split("#")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+
   const password = passwordInput.value;
   const isPremium = isPremiumInput.checked;
 
@@ -324,7 +333,11 @@ async function deletePost(id) {
   const pw = prompt("이 글의 비밀번호를 입력해주세요.");
   if (pw === null) return;
 
-  const { data: post } = await supabase.from("posts").select("*").eq("id", id).single();
+  const { data: post } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("id", id)
+    .single();
   if (post.password !== pw) return alert("비밀번호 불일치");
 
   await supabase.from("posts").delete().eq("id", id);
