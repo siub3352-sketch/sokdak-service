@@ -103,5 +103,39 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.4/dist/umd/supabase.min.js"></script>
   <script src="app.js"></script>
 
+<!-- ===============================
+     📝 상세보기 모달 
+=============================== -->
+<div id="detailModal" class="detail-modal hidden">
+  <div class="detail-modal-content">
+
+    <h2 class="detail-title"></h2>
+
+    <div class="detail-info">
+      <span class="detail-nickname"></span> ·
+      <span class="detail-time"></span> ·
+      <span class="detail-likes"></span>
+    </div>
+
+    <p class="detail-content"></p>
+
+    <div class="detail-tags tag-line"></div>
+
+    <hr>
+
+    <h3>댓글</h3>
+    <div id="commentList"></div>
+
+    <textarea id="modalCommentInput" class="comment-input"
+      placeholder="익명으로 따뜻한 한마디를 남겨주세요."></textarea>
+    <button id="modalCommentBtn" class="btn primary">댓글 작성</button>
+
+    <button id="closeDetail" class="btn secondary" style="width:100%; margin-top:12px;">
+      닫기
+    </button>
+
+  </div>
+</div>
+
 </body>
 </html>

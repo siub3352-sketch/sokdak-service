@@ -296,3 +296,6 @@ async function startEditPost(id) {
 // 초기 실행
 // ===============================
 loadPosts();
+document.getElementById("closeDetail").addEventListener("click", () => {
+  document.getElementById("detailModal").classList.add("hidden");
+});
