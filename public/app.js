@@ -610,29 +610,23 @@ sortSelectEl.addEventListener("change", () => {
 });
 
 loadPosts();
-async function deleteComment(comment) {
-  if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+async function deleteComment(commentId) {
+  const ok = confirm("정말 삭제하시겠습니까?");
+  if (!ok) return;
 
-  try {
-    const { error } = await db
-      .from("comments")
-      .delete()
-      .eq("id", comment.id);
+  const { error } = await supabase
+    .from("comments")
+    .delete()
+    .eq("id", commentId);
 
-    if (error) throw error;
-
-    // 삭제 후 화면 갱신
-    const { data } = await db
-      .from("comments")
-      .select("*")
-      .eq("post_id", comment.post_id)
-      .order("created_at", { ascending: true });
-
-    comments = data || [];
-    renderComments();
-  } catch (err) {
-    console.error(err);
+  if (error) {
     alert("댓글 삭제 중 오류가 발생했습니다.");
+    console.error(error);
+    return;
   }
+
+  alert("댓글이 삭제되었습니다!");
+  loadPosts();
 }
+
 
