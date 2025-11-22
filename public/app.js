@@ -18,9 +18,9 @@ function formatTime(timeString) {
   const now = new Date();
   const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
 
-  if (diffHours < 1) return "방금 전";
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  return `${Math.floor(diffHours / 24)}일 전`;
+  if (diffHours < 1) return " 방금 전";
+  if (diffHours < 24) return ` ${diffHours}시간 전`;
+  return ` ${Math.floor(diffHours / 24)}일 전`;
 }
 
 // ===============================
@@ -33,7 +33,8 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
   const content = document.getElementById("content").value.trim();
   const password = document.getElementById("password").value.trim();
   const tagText = document.getElementById("tags").value.trim();
-  const isPremium = document.getElementById("isPremium").checked;
+  const isPremium = document.getElementById("isPremiumInput").checked;
+
 
   if (!title || !content) {
     alert("제목과 내용을 입력해주세요!");
