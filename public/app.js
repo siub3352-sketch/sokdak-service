@@ -194,6 +194,16 @@ async function toggleDetail(postId) {
   const commentListEl = detail.querySelector(".comment-list");
   const inputEl = detail.querySelector(".comment-input");
   const submitBtnEl = detail.querySelector(".comment-submit");
+  submitBtnEl.onclick = async () => {
+  const text = inputEl.value.trim();
+  
+  if (!text) return alert("댓글 내용을 입력해주세요.");
+
+  await addComment(post.id, text);
+  inputEl.value = "";
+  await loadComments(post.id);
+};
+
 
   function renderComments() {
     commentListEl.innerHTML = "";
