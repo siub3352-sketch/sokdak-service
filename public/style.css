@@ -1,74 +1,52 @@
-/* ===== 전체 배경 더 파스텔하게 ===== */
+/* ===== 배경 ===== */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Pretendard', sans-serif;
-  background: linear-gradient(
-    to bottom,
-    #ffeef6 0%,
-    #ffe3f1 40%,
-    #ffeaf7 100%
-  );
+  background: linear-gradient(to bottom, #ffeef6, #ffe3f1 40%, #ffeaf7);
   color: #444;
+  padding-top: 10px; /* 전체 위로 당김 */
 }
 
-/* ===== 전체 컨테이너 ===== */
-.app-wrap {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
+/* ===== 헤더 ===== */
+.header-wrap {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 40px 0 40px;
+  margin-bottom: 20px;
 }
 
-/* ===== 헤더 영역 ===== */
-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-/* 제목들 → 검정색으로 변경 */
-header h1,
+.header-left h1,
 .card-title {
-  color: #000 !important;
+  color: #000;
 }
 
-/* 배지 */
-.badge {
+/* 왼쪽 */
+.header-left .badge {
   display: inline-block;
   background: #ffc9e2;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 13px;
   color: #8d4f6e;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
-h1 {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 800;
+/* 오른쪽 */
+.header-right {
+  display: flex;
+  align-items: flex-start;
 }
 
-.subtitle {
-  font-size: 15px;
-  margin-top: 8px;
-  color: #555;
-}
-
-.notice {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #777;
-}
-
-/* ===== 2단 레이아웃 ===== */
+/* ===== 전체 레이아웃 ===== */
 .layout {
   display: grid;
   grid-template-columns: 1fr 1.6fr;
   gap: 30px;
+  padding: 0 40px;
 }
 
-/* ===== 카드 박스 부드럽게 ===== */
+/* ===== 카드 ===== */
 .card {
   background: #fff8fc;
   padding: 22px 24px;
@@ -77,14 +55,13 @@ h1 {
   border: 1px solid #ffe0ef;
 }
 
-/* 카드 제목 = 검정 강조 */
 .card-title {
-  font-weight: 700;
-  margin-bottom: 18px;
   font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
 }
 
-/* ===== 입력 요소 ===== */
+/* ===== 입력 ===== */
 input, select, textarea {
   width: 100%;
   padding: 12px;
@@ -94,14 +71,6 @@ input, select, textarea {
   margin-bottom: 14px;
   background: #fff3fa;
   outline: none;
-  transition: 0.2s;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: #ff9acb;
-  background: #fff8fd;
 }
 
 textarea {
@@ -109,44 +78,7 @@ textarea {
   resize: none;
 }
 
-.filter-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.muted {
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 8px;
-}
-
-/* ===== 태그 버튼 ===== */
-#tagFilterList button {
-  margin: 4px 4px 0 0;
-}
-
-.btn-tag {
-  background: #ffe7f4;
-  color: #b45284;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 14px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-tag:hover {
-  background: #ffd3eb;
-}
-
-.btn-tag.active {
-  background: #ff9ad0;
-  color: white;
-}
-
-/* ===== 버튼들 ===== */
+/* ===== 버튼 ===== */
 .btn-row {
   display: flex;
   gap: 10px;
@@ -155,12 +87,11 @@ textarea {
 
 .btn {
   flex: 1;
-  padding: 12px 0;
+  padding: 12px;
   border-radius: 12px;
   border: none;
   font-size: 15px;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .btn.primary {
@@ -168,20 +99,11 @@ textarea {
   color: white;
 }
 
-.btn.primary:hover {
-  background: #ff7bb6;
-}
-
 .btn.secondary {
   background: #ffe3f2;
-  color: #884e6b;
 }
 
-.btn.secondary:hover {
-  background: #ffd3ec;
-}
-
-/* ===== 고민 목록 카드 ===== */
+/* ===== 목록 카드 ===== */
 .post-card {
   background: #fff0f7;
   border: 1px solid #ffd7ea;
@@ -191,9 +113,25 @@ textarea {
   box-shadow: 0 2px 8px rgba(200, 120, 150, 0.12);
 }
 
-.list-title {
-  margin-top: 25px;
-  font-size: 17px;
-  font-weight: 700;
-  color: #111;
+.post-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.detail-box {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ffddef;
+  margin-top: 8px;
+}
+
+/* 댓글 카드 */
+.comment-card {
+  background: #fff5fb;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ffd9eb;
+  margin-bottom: 10px;
 }

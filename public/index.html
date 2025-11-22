@@ -3,74 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>속닥속닥 - 익명 고민 공감 서비스</title>
+  <title>속닥속닥 - 익명 고민 공감</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="app-wrap">
-    <header>
+
+  <div class="header-wrap">
+    <div class="header-left">
       <div class="badge">익명 고민 공감</div>
       <h1>속닥속닥</h1>
-      <p class="subtitle">고민 많은 사람들을 위한 귀엽고 안전한 고민 공유 공간 ✨</p>
-      <p class="notice">모든 활동은 <b>완전 익명</b>이에요.<br>랜덤 닉네임으로만 서로를 기억해요 ✨</p>
-    </header>
+      <p class="subtitle">고민 많은 사람들의 따뜻한 공감 공간 ✨</p>
+    </div>
 
-    <div class="layout">
-
-      <!-- 왼쪽: 정렬/태그 + 목록 -->
-      <section class="card left-box">
-        <div class="card-title">정렬 · 태그 필터</div>
-
-        <label class="filter-label">정렬 기준</label>
-        <select id="sortSelect">
-          <option value="latest">최신순</option>
-          <option value="likes">공감순</option>
-        </select>
-
-        <div class="filter-box">
-          <label class="filter-label">태그 필터</label>
-          <p class="muted">글 작성 시 태그를 적어두면 여기에서 필터링할 수 있어요.</p>
-          <div id="tagFilterList"></div>
-        </div>
-
-        <h3 class="list-title">고민 목록 <span id="listInfo">(0개)</span></h3>
-        <div id="postList"></div>
-      </section>
-
-      <!-- 오른쪽: 글 작성 -->
-      <section class="card write-box">
-        <div class="card-title">고민 작성하기</div>
-
-        <form id="postForm">
-          <label>제목</label>
-          <input id="titleInput" type="text" placeholder="제목을 적어주세요." />
-
-          <label>내용</label>
-          <textarea id="contentInput" placeholder="어떤 고민인지 자세히 적어주세요."></textarea>
-
-          <label>태그 (쉼표로 구분)</label>
-          <input id="tagsInput" type="text" placeholder="예) 친구, 시험, 진로" />
-
-          <label>수정/삭제용 비밀번호</label>
-          <input id="passwordInput" type="password" placeholder="4자리 이상" />
-
-          <label class="premium-row">
-            <input id="isPremiumInput" type="checkbox"> 프리미엄 고민 (목록에서 강조 표시)
-          </label>
-
-          <div class="btn-row">
-            <button type="reset" class="btn secondary">초기화</button>
-            <button type="submit" id="submitBtn" class="btn primary">작성 완료</button>
-          </div>
-        </form>
-      </section>
-
+    <div class="header-right">
+      <p class="notice">모든 활동은 <b>완전 익명</b>이에요!</p>
     </div>
   </div>
 
-  <!-- Supabase CDN -->
+  <div class="layout">
+
+    <!-- 왼쪽: 필터 + 목록 -->
+    <section class="card left-box">
+      <div class="card-title">정렬 · 태그 필터</div>
+
+      <label class="filter-label">정렬 기준</label>
+      <select id="sortSelect">
+        <option value="latest">최신순</option>
+        <option value="likes">공감순</option>
+      </select>
+
+      <div class="filter-box">
+        <label class="filter-label">태그 필터</label>
+        <p class="muted">글 작성 시 태그를 적으면 여기에서 필터링할 수 있어요.</p>
+        <div id="tagFilterList"></div>
+      </div>
+
+      <h3 class="list-title">고민 목록 <span id="listInfo">(0개)</span></h3>
+      <div id="postList"></div>
+    </section>
+
+    <!-- 오른쪽: 글 작성 -->
+    <section class="card write-box">
+      <div class="card-title">고민 작성하기</div>
+
+      <form id="postForm">
+        <label>제목</label>
+        <input id="titleInput" type="text" placeholder="제목을 입력하세요">
+
+        <label>내용</label>
+        <textarea id="contentInput" placeholder="어떤 고민인가요?"></textarea>
+
+        <label>태그 (쉼표로 구분)</label>
+        <input id="tagsInput" type="text" placeholder="예) 시험, 친구, 진로">
+
+        <label>수정/삭제용 비밀번호</label>
+        <input id="passwordInput" type="password" placeholder="4자리 이상">
+
+        <label class="premium-row">
+          <input id="isPremiumInput" type="checkbox"> 프리미엄 고민 (강조 표시)
+        </label>
+
+        <div class="btn-row">
+          <button type="reset" class="btn secondary">초기화</button>
+          <button type="submit" id="submitBtn" class="btn primary">작성 완료</button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="app.js"></script>
+
 </body>
 </html>
