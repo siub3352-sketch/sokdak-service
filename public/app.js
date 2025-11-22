@@ -14,21 +14,20 @@ let currentDetailPostId = null;
 // 시간 포맷 함수
 // ===============================
   function formatTime(utcString) {
-  const date = new Date(utcString);  // UTC 기반 Date 생성
-  const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000); // 한국 시간으로 보정
-
+  const date = new Date(utcString);        // UTC 문자열 → 자동으로 KST로 변환됨
   const now = new Date();
-  const koreaNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
 
-  const diffMs = koreaNow - koreaTime;
+  const diffMs = now - date;
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-  if (diffHours < 1) return "방금 전";
-  if (diffHours < 24) return `${diffHours}시간 전`;
-
   const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 1) return "방금 전";
+  if (diffHours < 1) return `${diffMinutes}분 전`;
+  if (diffHours < 24) return `${diffHours}시간 전`;
   return `${diffDays}일 전`;
 }
+
 
 // ===============================
 // 글 작성
