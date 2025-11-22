@@ -488,6 +488,60 @@ async function toggleDetail(cardEl, post) {
   }
 
   renderComments();
+  function renderComments() {
+  commentListEl.innerHTML = "";
+
+  if (comments.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = "아직 답변이 없어요. 따뜻한 한마디를 남겨볼까요?";
+    commentListEl.appendChild(empty);
+    return;
+  }
+
+  comments.forEach((c) => {
+    const cc = document.createElement("div");
+    cc.className = "comment-card";
+
+    // --- header ---
+    const header = document.createElement("div");
+    header.className = "comment-header";
+
+    const left = document.createElement("span");
+    left.className = "comment-nick";
+    left.textContent = c.nickname;
+
+    const rightWrap = document.createElement("div");
+    rightWrap.className = "comment-right";
+
+    const time = document.createElement("span");
+    time.className = "comment-time";
+    time.textContent = timeToKoreanString(c.created_at);
+
+    // 🔥 여기! 삭제 버튼 추가
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn-outline tiny del-comment-btn";
+    delBtn.textContent = "삭제";
+    delBtn.onclick = () => deleteComment(c);
+
+    rightWrap.appendChild(time);
+    rightWrap.appendChild(delBtn);
+
+    header.appendChild(left);
+    header.appendChild(rightWrap);
+
+    // 내용
+    const cb = document.createElement("div");
+    cb.className = "comment-body";
+    cb.textContent = c.content;
+
+    cc.appendChild(header);
+    cc.appendChild(cb);
+
+    commentListEl.appendChild(cc);
+  });
+}
+
 
   const textarea = document.createElement("textarea");
   textarea.className = "comment-input";
@@ -556,3 +610,29 @@ sortSelectEl.addEventListener("change", () => {
 });
 
 loadPosts();
+async function deleteComment(comment) {
+  if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+
+  try {
+    const { error } = await db
+      .from("comments")
+      .delete()
+      .eq("id", comment.id);
+
+    if (error) throw error;
+
+    // 삭제 후 화면 갱신
+    const { data } = await db
+      .from("comments")
+      .select("*")
+      .eq("post_id", comment.post_id)
+      .order("created_at", { ascending: true });
+
+    comments = data || [];
+    renderComments();
+  } catch (err) {
+    console.error(err);
+    alert("댓글 삭제 중 오류가 발생했습니다.");
+  }
+}
+

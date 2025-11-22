@@ -295,3 +295,11 @@ textarea {
   border: 1px solid #ffd7ea;
   box-shadow: 0 4px 14px rgba(0,0,0,0.15);
 }
+
+.del-comment-btn {
+  margin-left: 8px;
+  font-size: 12px;
+  padding: 2px 6px;
+  color: #ff6b8b;
+  border-color: #ffb3c5;
+}
