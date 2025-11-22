@@ -71,6 +71,33 @@
       </form>
     </section>
   </div>
+  <!-- 📝 상세보기 모달 / 댓글 UI -->
+<div id="detailModal" class="detail-modal hidden">
+  <div class="detail-modal-content">
+
+    <h2 id="detailTitle"></h2>
+    <p id="detailContent"></p>
+
+    <div class="detail-tags" id="detailTags"></div>
+
+    <div class="detail-info">
+      <span id="detailNickname"></span> ·
+      <span id="detailTime"></span> ·
+      <span id="detailLikes"></span>
+    </div>
+
+    <hr>
+
+    <h3>댓글</h3>
+    <div id="commentList"></div>
+
+    <textarea id="commentInput" placeholder="따뜻한 한마디를 남겨주세요"></textarea>
+    <button id="addCommentBtn" class="btn-comment">댓글 작성</button>
+
+    <button id="closeDetail" class="btn secondary" style="margin-top:20px">닫기</button>
+
+  </div>
+</div>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.4/dist/umd/supabase.min.js"></script>

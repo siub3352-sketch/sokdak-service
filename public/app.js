@@ -401,3 +401,76 @@ function startEditPost(id, password) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 }
+// ===============================
+// 댓글 불러오기
+// ===============================
+async function loadComments(postId) {
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("댓글 불러오기 오류:", error);
+    return;
+  }
+
+  renderCommentList(data, postId);
+}
+
+// ===============================
+// 댓글 리스트 렌더링
+// ===============================
+function renderCommentList(comments, postId) {
+  const commentBox = document.querySelector(`#comment-box-${postId}`);
+  if (!commentBox) return;
+
+  commentBox.innerHTML = "";
+
+  if (comments.length === 0) {
+    commentBox.innerHTML = `<div class="muted">아직 댓글이 없어요.</div>`;
+    return;
+  }
+
+  comments.forEach((c) => {
+    const div = document.createElement("div");
+    div.className = "comment-item";
+
+    div.innerHTML = `
+      <div class="comment-header">
+        <b>${c.nickname}</b>
+        <span class="comment-time">${timeToKoreanString(c.created_at)}</span>
+      </div>
+      <div class="comment-content">${c.content}</div>
+      <button class="btn-tag" onclick="voteComment(${c.id}, ${postId})">
+        도움이 돼요 (${c.votes})
+      </button>
+    `;
+
+    commentBox.appendChild(div);
+  });
+}
+
+// ===============================
+// 댓글 작성
+// ===============================
+async function addComment(postId, content) {
+  const nickname = "익명" + Math.floor(Math.random() * 9999);
+
+  const { error } = await supabase.from("comments").insert([
+    {
+      post_id: postId,
+      content,
+      nickname
+    }
+  ]);
+
+  if (error) {
+    alert("댓글 등록 오류: " + error.message);
+    return;
+  }
+
+  loadComments(postId);
+}
+
