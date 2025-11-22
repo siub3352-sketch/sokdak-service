@@ -303,3 +303,42 @@ textarea {
   color: #ff6b8b;
   border-color: #ffb3c5;
 }
+.detail-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.detail-modal.hidden {
+  display: none;
+}
+
+.detail-box {
+  background: #fff;
+  padding: 20px;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.detail-btn-row {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.detail-tags span {
+  display: inline-block;
+  background: #ffe2f1;
+  padding: 4px 10px;
+  margin-right: 5px;
+  border-radius: 12px;
+  font-size: 13px;
+}

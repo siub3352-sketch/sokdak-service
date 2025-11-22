@@ -136,6 +136,35 @@
 
   </div>
 </div>
+<!-- ================= 상세 보기 모달 ================= -->
+<div id="detailModal" class="detail-modal hidden">
+  <div class="detail-box">
+    <h2 id="detailTitle"></h2>
+    <p id="detailContent"></p>
+
+    <div id="detailTags" class="detail-tags"></div>
+
+    <p class="detail-info">
+      <span id="detailNickname"></span> · 
+      <span id="detailTime"></span>
+    </p>
+
+    <div class="detail-btn-row">
+      <button id="detailLikeBtn" class="btn small">공감하기</button>
+      <button id="detailEditBtn" class="btn small">수정</button>
+      <button id="detailDeleteBtn" class="btn small delete">삭제</button>
+      <button id="detailCloseBtn" class="btn small secondary">닫기</button>
+    </div>
+
+    <hr>
+
+    <h3>댓글</h3>
+    <div id="detailComments"></div>
+
+    <textarea id="detailCommentInput" placeholder="댓글을 남겨주세요"></textarea>
+    <button id="detailCommentSubmit" class="btn small">댓글 작성</button>
+  </div>
+</div>
 
 </body>
 </html>
