@@ -117,10 +117,10 @@ function renderPosts() {
         ${formatTime(p.created_at)} · 공감 ${p.likes}
       </div>
 
-      <button class="btn-tag" onclick="toggleDetail(${p.id})">자세히 보기</button>
-      <button class="btn-tag" onclick="likePost(${p.id})">공감하기</button>
-      <button class="btn-tag" onclick="editPost(${p.id})">수정</button>
-      <button class="btn-tag" onclick="deletePost(${p.id})">삭제</button>
+    <button class="btn-list" onclick="toggleDetail(${p.id})">자세히 보기</button>
+    <button class="btn-list" onclick="likePost(${p.id})">공감하기</button>
+    <button class="btn-list" onclick="editPost(${p.id})">수정</button>
+    <button class="btn-list" onclick="deletePost(${p.id})">삭제</button>
 
       <div id="detail-${p.id}" class="detail-box" style="display:none;"></div>
     `;
@@ -167,9 +167,10 @@ async function toggleDetail(id) {
         <div class="comment-card">
           <div><b>${c.nickname}</b> · ${formatTime(c.created_at)}</div>
           <div>${c.content}</div>
-          <button class="btn-tag" onclick="voteComment(${c.id}, ${id})">
-            도움돼요 (${c.votes})
+          <button class="btn-vote" onclick="voteComment(${c.id}, ${id})">
+          도움돼요 (${c.votes})
           </button>
+
         </div>
       `;
     });
@@ -177,7 +178,7 @@ async function toggleDetail(id) {
 
   html += `
     <textarea id="cmt-${id}" placeholder="댓글을 입력하세요"></textarea>
-    <button class="btn primary" onclick="addComment(${id})">댓글 작성</button>
+    <button class="btn-comment" onclick="addComment(${id})">댓글 작성</button>
   `;
 
   target.innerHTML = html;

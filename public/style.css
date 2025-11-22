@@ -135,3 +135,55 @@ textarea {
   border: 1px solid #ffd9eb;
   margin-bottom: 10px;
 }
+/* ===== 리스트 버튼 (자세히 보기 / 공감 / 수정 / 삭제) ===== */
+.btn-list {
+  background: #ffe7f4;
+  color: #b04474;
+  border: 1px solid #ffb6d9;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-right: 6px;
+}
+
+.btn-list:hover {
+  background: #ffcbe8;
+  border-color: #ff94c8;
+}
+
+/* ===== 댓글 작성 버튼 ===== */
+.btn-comment {
+  background: #ffa3cf;
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-comment:hover {
+  background: #ff7bb6;
+}
+
+/* ===== 댓글 도움돼요 버튼 ===== */
+.btn-vote {
+  background: #ffe0f2;
+  color: #a22f6b;
+  border: 1px solid #ffb0da;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-vote:hover {
+  background: #ffd2ea;
+  border-color: #ff9acb;
+}
