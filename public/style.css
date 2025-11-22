@@ -342,3 +342,60 @@ textarea {
   border-radius: 12px;
   font-size: 13px;
 }
+/* ===========================
+   댓글 영역 정렬 개선
+   =========================== */
+
+.comment-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 16px;
+}
+
+.comment-card {
+  background: #ffe6f1;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.comment-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #ffe6f1;
+  border: none;
+  border-radius: 12px;
+  min-height: 120px;
+  margin-top: 10px;
+  resize: vertical;
+}
+
+/* 댓글 버튼 */
+.btn-comment {
+  margin-top: 12px;
+  background: #ff99c8;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+  display: inline-block;
+}
+
+.btn-comment:hover {
+  background: #ff7ab4;
+}
+
+/* 전체 레이아웃이 넘치지 않도록 */
+.post-card {
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+}
