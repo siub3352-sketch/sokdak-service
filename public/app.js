@@ -13,30 +13,15 @@ let currentDetailPostId = null;
 // ===============================
 // 시간 포맷 함수
 // ===============================
-function timeToKoreanString(ts) {
-  // Supabase UTC → 한국시간(KST) 변환
-  const date = new Date(ts);
-  const kst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+function formatTime(timeString) {
+  const date = new Date(timeString);
+  const now = new Date();
+  const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
 
-  const diff = Date.now() - kst.getTime(); 
-
-  const sec = Math.floor(diff / 1000);
-  if (sec < 60) return "방금 전";
-
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}분 전`;
-
-  const hour = Math.floor(min / 60);
-  if (hour < 24) return `${hour}시간 전`;
-
-  const day = Math.floor(hour / 24);
-  if (day < 7) return `${day}일 전`;
-
-  return `${kst.getFullYear()}.${String(kst.getMonth() + 1).padStart(2, "0")}.${String(
-    kst.getDate()
-  ).padStart(2, "0")}`;
+  if (diffHours < 1) return " 방금 전";
+  if (diffHours < 24) return ` ${diffHours}시간 전`;
+  return ` ${Math.floor(diffHours / 24)}일 전`;
 }
-
 
 // ===============================
 // 글 작성
@@ -48,7 +33,7 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
   const content = document.getElementById("content").value.trim();
   const password = document.getElementById("password").value.trim();
   const tagText = document.getElementById("tags").value.trim();
-  const isPremium = document.getElementById("isPremiumInput").checked;
+const isPremium = document.getElementById("isPremiumInput").checked;
 
 
   if (!title || !content) {
