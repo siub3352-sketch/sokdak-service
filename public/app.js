@@ -135,63 +135,80 @@ function renderPosts(posts) {
 async function openDetail(postId) {
   currentDetailPostId = postId;
 
+  // 게시글 데이터 가져오기
   const { data, error } = await supabase
     .from("posts")
     .select("*")
     .eq("id", postId)
     .single();
 
-  if (error) return;
+  if (error || !data) {
+    alert("상세 정보를 불러오는 중 오류가 발생했습니다.");
+    return;
+  }
 
-  const modal = document.getElementById("detailModal");
-  modal.querySelector(".detail-title").innerText = data.title;
-  modal.querySelector(".detail-content").innerText = data.content;
-  modal.querySelector(".detail-likes").innerText = `💗 ${data.likes}`;
+  // 카드 아래에 펼쳐질 영역
+  const area = document.getElementById(`commentArea_${postId}`);
 
-  modal.classList.remove("hidden");
+  // 이미 열려 있으면 닫기
+  if (!area.classList.contains("hidden")) {
+    area.classList.add("hidden");
+    area.innerHTML = "";
+    return;
+  }
+
+  // 상세보기 UI
+  area.classList.remove("hidden");
+  area.innerHTML = `
+    <div class="detail-box">
+      <p>${data.content}</p>
+
+      <h4 style="margin-top:10px;">댓글</h4>
+      <div id="comments_${postId}" class="comment-list">불러오는 중...</div>
+
+      <textarea id="commentInput_${postId}" class="comment-input" placeholder="댓글을 입력하세요"></textarea>
+      <button class="btn primary" onclick="submitComment(${postId})">댓글 남기기</button>
+    </div>
+  `;
 
   loadComments(postId);
 }
+
 
 // ===============================
 // 댓글 목록 불러오기
 // ===============================
 async function loadComments(postId) {
+  const target = document.getElementById(`comments_${postId}`);
+  if (!target) return;
+
   const { data, error } = await supabase
     .from("comments")
     .select("*")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
 
-  const commentBox = document.getElementById(`commentArea_${postId}`);
-
-  if (!commentBox) return;
-
-  if (!data || data.length === 0) {
-    commentBox.innerHTML = "<p class='muted'>댓글이 아직 없습니다.</p>";
+  if (error) {
+    target.innerHTML = "<p class='muted'>댓글을 불러오지 못했습니다.</p>";
     return;
   }
 
-  let html = "<h4>댓글</h4>";
+  if (!data || data.length === 0) {
+    target.innerHTML = "<p class='muted'>아직 댓글이 없어요.</p>";
+    return;
+  }
 
-  data.forEach((c) => {
-    html += `
+  target.innerHTML = data
+    .map(
+      (c) => `
       <div class="comment-card">
-        <b>${c.nickname}</b> · ${formatTime(c.created_at)}<br>
-        ${c.content}
+        <strong>${c.nickname}</strong> · ${formatTime(c.created_at)}
+        <p>${c.content}</p>
         <button class="btn-list del-comment-btn" onclick="deleteComment(${c.id})">삭제</button>
       </div>
-    `;
-  });
-
-  // 댓글 입력창 생성
-  html += `
-    <textarea id="commentInput_${postId}" class="comment-input" placeholder="익명으로 따뜻한 한마디를 남겨주세요."></textarea>
-    <button class="btn primary" onclick="submitComment(${postId})">댓글 남기기</button>
-  `;
-
-  commentBox.classList.remove("hidden");
-  commentBox.innerHTML = html;
+    `
+    )
+    .join("");
 }
 
 // ===============================
