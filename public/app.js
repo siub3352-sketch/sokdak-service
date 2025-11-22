@@ -1,39 +1,42 @@
-//------------------------------------------------------
-// 1) Supabase 연결
-//------------------------------------------------------
+// ===============================
+// Supabase 연결
+// ===============================
 const SUPABASE_URL = "https://effnciiebondujprjhio.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZm5jaWllYm9uZHVqcHJqaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzQ5MDYsImV4cCI6MjA3OTMxMDkwNn0.abm_hxGYDTsZjP-5MT93IBo_HoIgHQANJj1PMsKkh3c";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZm5jaWllYm9uZHVqcHJqaGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzQ5MDYsImV4cCI6MjA3OTMxMDkwNn0.abm_hxGYDTsZjP-5MT93IBo_HoIgHQANJj1PMsKkh3c";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-//------------------------------------------------------
-// 2) 전역 변수
-//------------------------------------------------------
+// ===============================
+// 전역 상태 & DOM 요소
+// ===============================
 let posts = [];
-let currentSort = "latest";
+let currentSort = "latest";   // latest | likes
 let currentFilterTag = "";
 let editingPostId = null;
 
-// DOM 요소
 const postListEl = document.getElementById("postList");
 const listInfoEl = document.getElementById("listInfo");
 const sortSelectEl = document.getElementById("sortSelect");
 const tagFilterListEl = document.getElementById("tagFilterList");
 
-// 글 작성 폼 요소
 const postForm = document.getElementById("postForm");
+const submitBtn = document.getElementById("submitBtn");
+
 const titleInput = document.getElementById("title");
 const contentInput = document.getElementById("content");
 const tagsInput = document.getElementById("tags");
 const passwordInput = document.getElementById("password");
 const isPremiumInput = document.getElementById("isPremium");
-const submitBtn = document.getElementById("submitBtn");
 
-//------------------------------------------------------
-// 3) 시간 포맷
-//------------------------------------------------------
+// ===============================
+// 유틸
+// ===============================
 function timeToKoreanString(ts) {
-  const diff = Date.now() - new Date(ts).getTime();
+  if (!ts) return "";
+  const d = new Date(ts);
+  const diff = Date.now() - d.getTime();
+
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return "방금 전";
   const min = Math.floor(sec / 60);
@@ -43,29 +46,32 @@ function timeToKoreanString(ts) {
   const day = Math.floor(hr / 24);
   if (day < 7) return `${day}일 전`;
 
-  const d = new Date(ts);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(
     2,
     "0"
   )}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
-//------------------------------------------------------
-// 4) 태그 파싱 (#친구 #연애)
-//------------------------------------------------------
-function parseTags(str) {
-  if (!str.trim()) return [];
-  return str
+// "#태그1 #태그2" → ["태그1","태그2"]
+function parseTags(raw) {
+  if (!raw) return [];
+  return raw
     .split("#")
-    .map((t) => t.trim())
-    .filter((t) => t !== "");
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
-//------------------------------------------------------
-// 5) 글 불러오기
-//------------------------------------------------------
+// 익명 닉네임 생성
+function makeNickname() {
+  const num = Math.floor(1000 + Math.random() * 9000);
+  return `익명${num}`;
+}
+
+// ===============================
+// 글 목록 불러오기
+// ===============================
 async function loadPosts() {
-  let query = supabase.from("posts").select("*");
+  let query = db.from("posts").select("*");
 
   if (currentFilterTag) {
     query = query.contains("tags", [currentFilterTag]);
@@ -78,27 +84,26 @@ async function loadPosts() {
   }
 
   const { data, error } = await query;
-  if (error) return alert("글을 불러오는 중 오류 발생");
+
+  if (error) {
+    console.error(error);
+    alert("글 목록을 불러오는 중 오류가 발생했습니다.");
+    return;
+  }
 
   posts = data || [];
   renderPosts();
-  renderTagFilterButtons();
 }
 
-// 정렬 변경
-sortSelectEl.addEventListener("change", () => {
-  currentSort = sortSelectEl.value;
-  loadPosts();
-});
-
-//------------------------------------------------------
-// 6) 태그 버튼 렌더링
-//------------------------------------------------------
+// ===============================
+// 태그 필터 버튼 렌더링
+// ===============================
 function renderTagFilterButtons() {
   tagFilterListEl.innerHTML = "";
 
   const allBtn = document.createElement("button");
-  allBtn.className = "btn-tag" + (currentFilterTag === "" ? " active" : "");
+  allBtn.type = "button";
+  allBtn.className = "tag-pill" + (currentFilterTag === "" ? " active" : "");
   allBtn.textContent = "전체";
   allBtn.onclick = () => {
     currentFilterTag = "";
@@ -107,13 +112,18 @@ function renderTagFilterButtons() {
   tagFilterListEl.appendChild(allBtn);
 
   const tagSet = new Set();
-  posts.forEach((p) => (p.tags || []).forEach((t) => tagSet.add(t)));
+  posts.forEach((p) => {
+    if (Array.isArray(p.tags)) {
+      p.tags.forEach((t) => tagSet.add(t));
+    }
+  });
 
   tagSet.forEach((tag) => {
     const btn = document.createElement("button");
+    btn.type = "button";
     btn.className =
-      "btn-tag" + (currentFilterTag === tag ? " active" : "");
-    btn.textContent = "#" + tag;
+      "tag-pill" + (currentFilterTag === tag ? " active" : "");
+    btn.textContent = `#${tag}`;
     btn.onclick = () => {
       currentFilterTag = tag;
       loadPosts();
@@ -122,28 +132,31 @@ function renderTagFilterButtons() {
   });
 }
 
-//------------------------------------------------------
-// 7) 글 목록 렌더링
-//------------------------------------------------------
+// ===============================
+// 글 목록 렌더링
+// ===============================
 function renderPosts() {
   postListEl.innerHTML = "";
   listInfoEl.textContent = `(${posts.length}개)`;
 
   if (posts.length === 0) {
-    postListEl.innerHTML =
-      '<div class="muted">아직 올라온 고민이 없어요!</div>';
+    const empty = document.createElement("div");
+    empty.className = "muted center";
+    empty.textContent = "아직 올라온 고민이 없어요. 첫 고민을 남겨볼까요?";
+    postListEl.appendChild(empty);
+    renderTagFilterButtons();
     return;
   }
 
   posts.forEach((post) => {
-    const card = document.createElement("div");
+    const card = document.createElement("article");
     card.className = "post-card";
 
-    // 제목 + 배지
+    // 헤더
     const header = document.createElement("div");
     header.className = "post-header";
 
-    const titleEl = document.createElement("div");
+    const titleEl = document.createElement("h3");
     titleEl.className = "post-title";
     titleEl.textContent = post.title;
 
@@ -158,311 +171,388 @@ function renderPosts() {
     header.appendChild(titleEl);
     header.appendChild(right);
 
-    // 메타 정보
+    // 메타
     const meta = document.createElement("div");
     meta.className = "post-meta";
-    meta.innerHTML = `
-      <span>${post.nickname}</span>
-      <span>${timeToKoreanString(post.created_at)}</span>
-      <span>💗 ${post.likes}</span>
-    `;
+
+    const nick = document.createElement("span");
+    nick.className = "nickname-pill";
+    nick.textContent = post.nickname;
+
+    const time = document.createElement("span");
+    time.textContent = timeToKoreanString(post.created_at);
+
+    const like = document.createElement("span");
+    like.textContent = `💗 ${post.likes ?? 0}`;
+
+    meta.appendChild(nick);
+    meta.appendChild(time);
+    meta.appendChild(like);
 
     // 태그
     const tagRow = document.createElement("div");
     tagRow.className = "post-tags";
-    (post.tags || []).forEach((t) => {
-      const s = document.createElement("span");
-      s.textContent = "#" + t;
-      tagRow.appendChild(s);
-    });
+    if (Array.isArray(post.tags) && post.tags.length > 0) {
+      post.tags.forEach((t) => {
+        const span = document.createElement("span");
+        span.textContent = `#${t}`;
+        tagRow.appendChild(span);
+      });
+    }
 
-    // 버튼들
+    // 액션 버튼들
     const actions = document.createElement("div");
     actions.className = "post-actions";
 
-    const detailBtn = document.createElement("button");
-    detailBtn.className = "btn-outline";
-    detailBtn.textContent = "자세히 보기";
-    detailBtn.onclick = () => toggleDetail(card, post);
+    const leftBtns = document.createElement("div");
+    leftBtns.className = "post-actions-left";
 
-    const likeBtn = document.createElement("button");
-    likeBtn.className = "btn-outline";
-    likeBtn.textContent = "공감";
-    likeBtn.onclick = () => likePost(post.id);
+    const btnDetail = document.createElement("button");
+    btnDetail.type = "button";
+    btnDetail.className = "btn-outline small";
+    btnDetail.textContent = "자세히 보기";
+    btnDetail.onclick = () => toggleDetail(card, post);
 
-    const editBtn = document.createElement("button");
-    editBtn.className = "btn-outline";
-    editBtn.textContent = "수정";
-    editBtn.onclick = () => startEditPost(post);
+    const btnLike = document.createElement("button");
+    btnLike.type = "button";
+    btnLike.className = "btn-outline small";
+    btnLike.textContent = "공감";
+    btnLike.onclick = () => likePost(post);
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "btn-outline";
-    deleteBtn.textContent = "삭제";
-    deleteBtn.onclick = () => deletePost(post.id);
+    leftBtns.appendChild(btnDetail);
+    leftBtns.appendChild(btnLike);
 
-    actions.appendChild(detailBtn);
-    actions.appendChild(likeBtn);
-    actions.appendChild(editBtn);
-    actions.appendChild(deleteBtn);
+    const rightBtns = document.createElement("div");
+    rightBtns.className = "post-actions-right";
+
+    const btnEdit = document.createElement("button");
+    btnEdit.type = "button";
+    btnEdit.className = "btn-outline small";
+    btnEdit.textContent = "수정";
+    btnEdit.onclick = () => startEditPost(post);
+
+    const btnDelete = document.createElement("button");
+    btnDelete.type = "button";
+    btnDelete.className = "btn-outline small";
+    btnDelete.textContent = "삭제";
+    btnDelete.onclick = () => deletePost(post);
+
+    rightBtns.appendChild(btnEdit);
+    rightBtns.appendChild(btnDelete);
+
+    actions.appendChild(leftBtns);
+    actions.appendChild(rightBtns);
 
     card.appendChild(header);
     card.appendChild(meta);
-    card.appendChild(tagRow);
+    if (tagRow.children.length > 0) card.appendChild(tagRow);
     card.appendChild(actions);
 
     postListEl.appendChild(card);
   });
+
+  renderTagFilterButtons();
 }
 
-//------------------------------------------------------
-// 8) 글 작성 / 수정
-//------------------------------------------------------
+// ===============================
+// 글 작성 / 수정
+// ===============================
 postForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const title = titleInput.value.trim();
   const content = contentInput.value.trim();
-  const pw = passwordInput.value.trim();
-  const tags = parseTags(tagsInput.value);
+  const password = passwordInput.value;
   const isPremium = isPremiumInput.checked;
+  const tags = parseTags(tagsInput.value);
 
-  if (!title) return alert("제목을 입력해주세요.");
-  if (!content) return alert("내용을 입력해주세요.");
-  if (!pw || pw.length < 4)
-    return alert("비밀번호는 4자리 이상 입력해주세요.");
-
-  if (editingPostId) {
-    // 수정
-    const { error } = await supabase
-      .from("posts")
-      .update({
-        title,
-        content,
-        tags,
-        password: pw,
-        is_premium: isPremium,
-      })
-      .eq("id", editingPostId);
-
-    if (error) return alert("수정 중 오류 발생");
-
-    editingPostId = null;
-    submitBtn.textContent = "작성 완료";
-    postForm.reset();
-    alert("수정되었습니다.");
-  } else {
-    // 새 글
-    const nickname = "익명" + Math.floor(Math.random() * 9999);
-
-    const { error } = await supabase.from("posts").insert([
-      {
-        title,
-        content,
-        tags,
-        password: pw,
-        is_premium: isPremium,
-        nickname,
-        likes: 0,
-      },
-    ]);
-
-    if (error) return alert("등록 중 오류 발생");
-
-    postForm.reset();
-    alert("작성되었습니다!");
+  if (!title) {
+    alert("제목을 입력해 주세요.");
+    return;
+  }
+  if (!content) {
+    alert("내용을 입력해 주세요.");
+    return;
+  }
+  if (!password || password.length < 4) {
+    alert("비밀번호를 4자리 이상 입력해 주세요.");
+    return;
   }
 
-  loadPosts();
+  const nickname = makeNickname();
+
+  try {
+    if (editingPostId) {
+      // 수정
+      const { error } = await db
+        .from("posts")
+        .update({ title, content, tags, password, is_premium: isPremium })
+        .eq("id", editingPostId);
+
+      if (error) throw error;
+
+      alert("글이 수정되었습니다.");
+      editingPostId = null;
+      submitBtn.textContent = "작성 완료";
+    } else {
+      // 새 글
+      const { error } = await db.from("posts").insert([
+        { title, content, password, nickname, is_premium: isPremium, tags },
+      ]);
+      if (error) throw error;
+
+      alert("고민이 등록되었습니다.");
+    }
+
+    postForm.reset();
+    await loadPosts();
+  } catch (err) {
+    console.error(err);
+    alert("글 저장 중 오류가 발생했습니다.");
+  }
 });
 
-//------------------------------------------------------
-// 9) 글 수정 모드
-//------------------------------------------------------
-function startEditPost(post) {
-  const pw = prompt("비밀번호를 입력해주세요.");
-  if (pw !== post.password) return alert("비밀번호가 틀렸습니다.");
+// 수정 모드 시작
+async function startEditPost(post) {
+  const pw = prompt("이 글의 비밀번호를 입력해 주세요.");
+  if (pw === null) return;
+  if (!pw) {
+    alert("비밀번호를 입력해 주세요.");
+    return;
+  }
 
-  editingPostId = post.id;
+  try {
+    const { data, error } = await db
+      .from("posts")
+      .select("id")
+      .eq("id", post.id)
+      .eq("password", pw)
+      .maybeSingle();
 
-  titleInput.value = post.title;
-  contentInput.value = post.content;
-  tagsInput.value =
-    post.tags.length > 0 ? "#" + post.tags.join(" #") : "";
-  passwordInput.value = pw;
-  isPremiumInput.checked = post.is_premium;
-  submitBtn.textContent = "수정 완료";
+    if (error) throw error;
+    if (!data) {
+      alert("비밀번호가 올바르지 않습니다.");
+      return;
+    }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+    titleInput.value = post.title;
+    contentInput.value = post.content;
+    tagsInput.value = Array.isArray(post.tags) ? "#" + post.tags.join(" #") : "";
+    passwordInput.value = pw;
+    isPremiumInput.checked = !!post.is_premium;
+
+    editingPostId = post.id;
+    submitBtn.textContent = "수정 완료";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    console.error(err);
+    alert("비밀번호 확인 중 오류가 발생했습니다.");
+  }
 }
 
-//------------------------------------------------------
-// 10) 글 삭제
-//------------------------------------------------------
-async function deletePost(id) {
-  const post = posts.find((p) => p.id === id);
-  const pw = prompt("비밀번호를 입력해주세요.");
-  if (pw !== post.password) return alert("비밀번호가 틀렸습니다.");
-
+// 글 삭제
+async function deletePost(post) {
+  const pw = prompt("이 글의 비밀번호를 입력해 주세요. 삭제는 되돌릴 수 없습니다.");
+  if (pw === null) return;
+  if (!pw) {
+    alert("비밀번호를 입력해 주세요.");
+    return;
+  }
   if (!confirm("정말 삭제할까요?")) return;
 
-  await supabase.from("posts").delete().eq("id", id);
-  loadPosts();
+  try {
+    // 비밀번호 검증
+    const { data, error } = await db
+      .from("posts")
+      .select("id")
+      .eq("id", post.id)
+      .eq("password", pw)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) {
+      alert("비밀번호가 올바르지 않습니다.");
+      return;
+    }
+
+    const { error: delErr } = await db
+      .from("posts")
+      .delete()
+      .eq("id", post.id);
+
+    if (delErr) throw delErr;
+
+    alert("삭제되었습니다.");
+    await loadPosts();
+  } catch (err) {
+    console.error(err);
+    alert("삭제 중 오류가 발생했습니다.");
+  }
 }
 
-//------------------------------------------------------
-// 11) 공감
-//------------------------------------------------------
-async function likePost(id) {
-  const post = posts.find((p) => p.id === id);
-  const newLikes = (post.likes || 0) + 1;
+// 공감(좋아요)
+async function likePost(post) {
+  try {
+    const { error } = await db
+      .from("posts")
+      .update({ likes: (post.likes || 0) + 1 })
+      .eq("id", post.id);
 
-  await supabase
-    .from("posts")
-    .update({ likes: newLikes })
-    .eq("id", id);
-
-  loadPosts();
+    if (error) throw error;
+    await loadPosts();
+  } catch (err) {
+    console.error(err);
+    alert("공감 처리 중 오류가 발생했습니다.");
+  }
 }
 
-//------------------------------------------------------
-// 12) 상세 보기 + 댓글 시스템 (A 방식)
-//------------------------------------------------------
+// ===============================
+// 상세 보기 + 댓글
+// ===============================
 async function toggleDetail(cardEl, post) {
-  // 이미 detail 열려있으면 제거 (접기)
   const existing = cardEl.querySelector(".detail");
   if (existing) {
     existing.remove();
     return;
   }
 
-  // detail 박스 생성
+  // 다른 카드 상세는 닫기
+  document.querySelectorAll(".detail").forEach((el) => el.remove());
+
+  // 댓글 불러오기
+  let comments = [];
+  try {
+    const { data, error } = await db
+      .from("comments")
+      .select("*")
+      .eq("post_id", post.id)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+    comments = data || [];
+  } catch (err) {
+    console.error(err);
+  }
+
   const detail = document.createElement("div");
   detail.className = "detail";
 
-  detail.innerHTML = `
-    <div class="detail-body">
-      ${post.content}
-    </div>
+  const body = document.createElement("div");
+  body.className = "detail-body";
+  body.textContent = post.content || "(내용 없음)";
 
-    <h4 style="margin-bottom:4px;">댓글</h4>
-    <div class="comment-list" id="comment-list-${post.id}">
-      <div class="muted">불러오는 중...</div>
-    </div>
+  const commentTitle = document.createElement("div");
+  commentTitle.className = "comment-title";
+  commentTitle.textContent = "댓글 / 답변";
 
-    <textarea class="comment-input" id="comment-input-${post.id}"
-      placeholder="따뜻한 한마디를 남겨주세요"></textarea>
+  const commentListEl = document.createElement("div");
+  commentListEl.className = "comment-list";
 
-    <button class="btn primary comment-submit"
-      id="comment-submit-${post.id}">
-      댓글 남기기
-    </button>
-  `;
-
-  cardEl.appendChild(detail);
-
-  // 댓글 불러오기
-  loadComments(post.id);
-
-  // 댓글 작성 버튼 이벤트 연결
-  const submitBtn = document.getElementById(
-    `comment-submit-${post.id}`
-  );
-  const inputEl = document.getElementById(
-    `comment-input-${post.id}`
-  );
-
-  submitBtn.onclick = async () => {
-    const text = inputEl.value.trim();
-    if (!text) return alert("댓글 내용을 입력해주세요.");
-
-    const nickname = "익명" + Math.floor(Math.random() * 9999);
-
-    const { error } = await supabase.from("comments").insert([
-      {
-        post_id: post.id,
-        content: text,
-        nickname,
-        votes: 0,
-      },
-    ]);
-
-    if (error) {
-      console.error(error);
-      return alert("댓글 등록 중 오류 발생");
+  function renderComments() {
+    commentListEl.innerHTML = "";
+    if (comments.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "muted";
+      empty.textContent = "아직 답변이 없어요. 따뜻한 한마디를 남겨볼까요?";
+      commentListEl.appendChild(empty);
+      return;
     }
 
-    inputEl.value = "";
-    loadComments(post.id);
+    comments.forEach((c) => {
+      const cc = document.createElement("div");
+      cc.className = "comment-card";
+
+      const header = document.createElement("div");
+      header.className = "comment-header";
+
+      const left = document.createElement("span");
+      left.className = "comment-nick";
+      left.textContent = c.nickname;
+
+      const right = document.createElement("span");
+      right.className = "comment-time";
+      right.textContent = timeToKoreanString(c.created_at);
+
+      header.appendChild(left);
+      header.appendChild(right);
+
+      const cb = document.createElement("div");
+      cb.className = "comment-body";
+      cb.textContent = c.content;
+
+      cc.appendChild(header);
+      cc.appendChild(cb);
+      commentListEl.appendChild(cc);
+    });
+  }
+
+  renderComments();
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "comment-input";
+  textarea.placeholder = "익명으로 따뜻한 한마디를 남겨주세요.";
+
+  const btnRow = document.createElement("div");
+  btnRow.className = "comment-btn-row";
+
+  const btnComment = document.createElement("button");
+  btnComment.type = "button";
+  btnComment.className = "btn primary small";
+  btnComment.textContent = "댓글 남기기";
+
+  btnComment.onclick = async () => {
+    const text = textarea.value.trim();
+    if (!text) {
+      alert("댓글 내용을 입력해 주세요.");
+      return;
+    }
+
+    try {
+      const nickname = makeNickname();
+      const { error } = await db.from("comments").insert([
+        {
+          post_id: post.id,
+          content: text,
+          nickname,
+        },
+      ]);
+      if (error) throw error;
+
+      textarea.value = "";
+
+      const { data, error: reloadErr } = await db
+        .from("comments")
+        .select("*")
+        .eq("post_id", post.id)
+        .order("created_at", { ascending: true });
+
+      if (reloadErr) throw reloadErr;
+      comments = data || [];
+      renderComments();
+    } catch (err) {
+      console.error(err);
+      alert("댓글 등록 중 오류가 발생했습니다.");
+    }
   };
+
+  btnRow.appendChild(btnComment);
+
+  detail.appendChild(body);
+  detail.appendChild(commentTitle);
+  detail.appendChild(commentListEl);
+  detail.appendChild(textarea);
+  detail.appendChild(btnRow);
+
+  cardEl.appendChild(detail);
 }
 
-//------------------------------------------------------
-// 13) 댓글 불러오기
-//------------------------------------------------------
-async function loadComments(postId) {
-  const { data, error } = await supabase
-    .from("comments")
-    .select("*")
-    .eq("post_id", postId)
-    .order("created_at", { ascending: true });
+// ===============================
+// 정렬 셀렉트 이벤트 & 초기 로딩
+// ===============================
+sortSelectEl.addEventListener("change", () => {
+  currentSort = sortSelectEl.value;
+  loadPosts();
+});
 
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  const listEl = document.getElementById(`comment-list-${postId}`);
-  listEl.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    listEl.innerHTML = `<div class="muted">아직 댓글이 없어요.</div>`;
-    return;
-  }
-
-  data.forEach((c) => {
-    const div = document.createElement("div");
-    div.className = "comment-item";
-
-    div.innerHTML = `
-      <div class="comment-header">
-        <span><b>${c.nickname}</b></span>
-        <span class="comment-time">${timeToKoreanString(
-          c.created_at
-        )}</span>
-      </div>
-
-      <div class="comment-content">${c.content}</div>
-
-      <button class="btn-tag"
-        onclick="voteComment(${c.id}, ${postId})">
-        도움이 됐어요 (${c.votes})
-      </button>
-    `;
-    listEl.appendChild(div);
-  });
-}
-
-//------------------------------------------------------
-// 14) 댓글 도움돼요 (투표)
-//------------------------------------------------------
-async function voteComment(commentId, postId) {
-  const { data: cmt } = await supabase
-    .from("comments")
-    .select("*")
-    .eq("id", commentId)
-    .single();
-
-  const newVotes = (cmt.votes || 0) + 1;
-
-  await supabase
-    .from("comments")
-    .update({ votes: newVotes })
-    .eq("id", commentId);
-
-  loadComments(postId);
-}
-
-//------------------------------------------------------
-// 초기 로딩
-//------------------------------------------------------
 loadPosts();
