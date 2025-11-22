@@ -34,8 +34,12 @@ const isPremiumInput = document.getElementById("isPremium");
 // 한국식 시간 표시
 // =======================================================
 function timeToKoreanString(ts) {
-  const diff = Date.now() - new Date(ts).getTime();
+  // UTC → 한국시간(+9시간) 보정
+  const created = new Date(ts).getTime() + 9 * 60 * 60 * 1000;
+
+  const diff = Date.now() - created;
   const sec = Math.floor(diff / 1000);
+
   if (sec < 60) return "방금 전";
   const min = Math.floor(sec / 60);
   if (min < 60) return `${min}분 전`;
@@ -44,11 +48,12 @@ function timeToKoreanString(ts) {
   const day = Math.floor(hr / 24);
   if (day < 7) return `${day}일 전`;
 
-  const d = new Date(ts);
+  const d = new Date(created);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(
     d.getDate()
   ).padStart(2, "0")}`;
 }
+
 
 // =======================================================
 // 글 목록 불러오기
