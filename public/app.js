@@ -358,3 +358,46 @@ sortSelectEl.addEventListener("change", () => {
 });
 
 loadPosts();
+// ===============================
+// 수정하기: 비밀번호 확인 후 폼에 데이터 채워넣기
+// ===============================
+function startEditPost(id, password) {
+  // 먼저 비밀번호 확인
+  const pw = prompt("이 글의 비밀번호를 입력해주세요.");
+  if (!pw) return;
+
+  // DB에서 해당 글 찾기
+  supabase
+    .from("posts")
+    .select("*")
+    .eq("id", id)
+    .single()
+    .then(({ data, error }) => {
+      if (error || !data) {
+        alert("글을 불러오지 못했습니다.");
+        return;
+      }
+
+      // 비밀번호 일치 검사
+      if (data.password !== pw) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      // 수정 모드로 전환
+      editingPostId = id;
+
+      // form에 기존 값 채워넣기
+      document.querySelector("#title").value = data.title;
+      document.querySelector("#content").value = data.content;
+      document.querySelector("#tags").value = data.tags.join(" ");
+      document.querySelector("#password").value = pw;
+      document.querySelector("#isPremium").checked = data.is_premium;
+
+      // 버튼 문구 변경
+      document.querySelector("#submitBtn").textContent = "수정 완료";
+
+      // 화면 맨 위로 이동
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+}
