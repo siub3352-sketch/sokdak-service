@@ -5,7 +5,7 @@ body {
   font-family: 'Pretendard', sans-serif;
   background: linear-gradient(to bottom, #ffeef6, #ffe3f1 40%, #ffeaf7);
   color: #444;
-  padding-top: 10px; /* 전체 위로 당김 */
+  padding-top: 10px;
 }
 
 /* ===== 헤더 ===== */
@@ -21,7 +21,6 @@ body {
   color: #000;
 }
 
-/* 왼쪽 */
 .header-left .badge {
   display: inline-block;
   background: #ffc9e2;
@@ -32,7 +31,6 @@ body {
   margin-bottom: 6px;
 }
 
-/* 오른쪽 */
 .header-right {
   display: flex;
   align-items: flex-start;
@@ -111,31 +109,72 @@ textarea {
   border-radius: 14px;
   margin-bottom: 14px;
   box-shadow: 0 2px 8px rgba(200, 120, 150, 0.12);
+  overflow: hidden;          /* 🔥 넘치지 않도록 */
+  box-sizing: border-box;
 }
 
-.post-title {
-  font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 4px;
-}
-
+/* ===== 상세 보기 박스 ===== */
 .detail-box {
   background: white;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: 14px;
   border: 1px solid #ffddef;
-  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
 }
 
-/* 댓글 카드 */
-.comment-card {
-  background: #fff5fb;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ffd9eb;
-  margin-bottom: 10px;
+/* ===== 댓글 박스 전체 ===== */
+.comment-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 16px;
 }
-/* ===== 리스트 버튼 (자세히 보기 / 공감 / 수정 / 삭제) ===== */
+
+/* ===== 댓글 개별 카드 ===== */
+.comment-card {
+  background: #ffe6f1;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ffd9eb;
+  box-sizing: border-box;
+}
+
+/* 댓글 입력창 */
+.comment-input {
+  width: 100%;
+  padding: 16px;
+  background: #ffe6f1;
+  border: 1px solid #ffd4ea;
+  border-radius: 12px;
+  min-height: 120px;
+  resize: vertical;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
+
+/* 댓글 작성 버튼 */
+.btn-comment {
+  margin-top: 12px;
+  background: #ff99c8;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-comment:hover {
+  background: #ff7ab4;
+}
+
+/* 리스트 버튼(수정/삭제/자세히) */
 .btn-list {
   background: #ffe7f4;
   color: #b04474;
@@ -150,28 +189,9 @@ textarea {
 
 .btn-list:hover {
   background: #ffcbe8;
-  border-color: #ff94c8;
 }
 
-/* ===== 댓글 작성 버튼 ===== */
-.btn-comment {
-  background: #ffa3cf;
-  border: none;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 10px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-comment:hover {
-  background: #ff7bb6;
-}
-
-/* ===== 댓글 도움돼요 버튼 ===== */
+/* 도움돼요 */
 .btn-vote {
   background: #ffe0f2;
   color: #a22f6b;
@@ -179,26 +199,20 @@ textarea {
   padding: 6px 10px;
   border-radius: 12px;
   font-size: 12px;
-  cursor: pointer;
-  transition: 0.2s;
 }
 
 .btn-vote:hover {
   background: #ffd2ea;
-  border-color: #ff9acb;
 }
-/* ============================================
-   📱 태블릿 (768px 이하) → 1단 구조
-============================================ */
+
+/* ---------------------------  
+   📱 반응형 
+----------------------------*/
 @media (max-width: 768px) {
   .layout {
     grid-template-columns: 1fr;
     padding: 0 20px;
     gap: 20px;
-  }
-
-  body {
-    padding-top: 5px;
   }
 
   .header-wrap {
@@ -207,33 +221,10 @@ textarea {
     text-align: left;
     gap: 10px;
   }
-
-  .header-right {
-    align-self: flex-start;
-  }
-
-  .card {
-    padding: 18px;
-  }
 }
 
-/* ============================================
-   📱 스마트폰 (600px 이하)
-============================================ */
 @media (max-width: 600px) {
-
-  /* 글자 크기 줄이기 */
-  h1 {
-    font-size: 26px;
-  }
-
-  .card-title {
-    font-size: 16px;
-  }
-
-  input,
-  select,
-  textarea {
+  input, select, textarea {
     font-size: 13px;
     padding: 10px;
   }
@@ -243,159 +234,5 @@ textarea {
     padding: 10px;
   }
 
-  /* 버튼들 */
-  .btn-list {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .btn-comment {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  /* 댓글 카드 */
-  .comment-card {
-    padding: 8px;
-  }
-
-  /* 카드 간격 */
-  .post-card {
-    padding: 12px;
-  }
-
-  /* 전체 좌우 여백 축소 */
-  .layout {
-    padding: 0 12px;
-  }
-}
-.detail-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.detail-modal.hidden {
-  display: none;
-}
-
-.detail-modal-content {
-  background: #fff8fc;
-  width: 90%;
-  max-width: 520px;
-  padding: 20px;
-  border-radius: 18px;
-  border: 1px solid #ffd7ea;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-}
-
-.del-comment-btn {
-  margin-left: 8px;
-  font-size: 12px;
-  padding: 2px 6px;
-  color: #ff6b8b;
-  border-color: #ffb3c5;
-}
-.detail-modal {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.detail-modal.hidden {
-  display: none;
-}
-
-.detail-box {
-  background: #fff;
-  padding: 20px;
-  width: 90%;
-  max-width: 450px;
-  border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-.detail-btn-row {
-  display: flex;
-  gap: 8px;
-  margin: 10px 0;
-}
-
-.detail-tags span {
-  display: inline-block;
-  background: #ffe2f1;
-  padding: 4px 10px;
-  margin-right: 5px;
-  border-radius: 12px;
-  font-size: 13px;
-}
-/* ===========================
-   댓글 영역 정렬 개선
-   =========================== */
-
-.comment-box {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 16px;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  margin-top: 16px;
-}
-
-.comment-card {
-  background: #ffe6f1;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-sizing: border-box;
-}
-
-.comment-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 16px;
-  background: #ffe6f1;
-  border: none;
-  border-radius: 12px;
-  min-height: 120px;
-  margin-top: 10px;
-  resize: vertical;
-}
-
-/* 댓글 버튼 */
-.btn-comment {
-  margin-top: 12px;
-  background: #ff99c8;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 22px;
-  color: white;
-  cursor: pointer;
-  font-size: 15px;
-  display: inline-block;
-}
-
-.btn-comment:hover {
-  background: #ff7ab4;
-}
-
-/* 전체 레이아웃이 넘치지 않도록 */
-.post-card {
-  overflow: hidden;
-  box-sizing: border-box;
-  padding-bottom: 20px;
+  .comment-card { padding: 10px; }
 }
