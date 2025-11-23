@@ -195,3 +195,7 @@ input, select, textarea {
     gap: 10px;
   }
 }
+.left-box {
+  max-height: 85vh;        /* 화면의 85%까지만 높이 유지 */
+  overflow-y: auto;        /* 내부 스크롤 생성 */
+}
